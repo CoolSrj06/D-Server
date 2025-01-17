@@ -1,10 +1,9 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { Survey } from '../model/survey.model.js'
-//import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-//import { oauth2Client } from "../utils/googleClient.js";
-//import axios from 'axios';
+import XLSX from "xlsx";
+import mongoose from "mongoose";
 
 
 const postSurvey = asyncHandler(async(req,res) => {
@@ -72,6 +71,28 @@ const postSurveyForm = asyncHandler(async(req,res) => {
     }
 });  
 
+const downloadSurveyData = asyncHandler(async (req, res) => {
+    let survey = [];
+    const surveyData = await Survey.find({});
+
+    surveyData.forEach((sample)=>{
+        const {surveyName, description, link} = sample;
+        survey.push({surveyName, description, link});
+    })
+    
+    // Step 2: Convert the data to an Excel sheet
+    const worksheet = XLSX.utils.json_to_sheet(survey); // Converts JSON to a worksheet
+    const workbook = XLSX.utils.book_new(); // Creates a new workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, "SurveyData"); // Adds the worksheet
+
+    // Step 3: Write the workbook to a buffer
+    const excelBuffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+    // Step 4: Send the Excel file as a response
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", "attachment; filename=survey-data.xlsx");
+    res.send(excelBuffer);
+})
 
 // const generateAccessAndRefreshTokens = (async(userId) => {
 //     try {
@@ -564,4 +585,5 @@ const postSurveyForm = asyncHandler(async(req,res) => {
 export {
     postSurvey,
     postSurveyForm,
+    downloadSurveyData,
 };

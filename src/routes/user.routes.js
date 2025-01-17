@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { postSurvey,postSurveyForm } from "../controller/user.controller.js";
+import { postSurvey , postSurveyForm , downloadSurveyData } from "../controller/user.controller.js";
 //import { verifyJWT } from "../middleware/auth.js"
 //import {upload} from "../middleware/multer.middleware.js"
 
@@ -12,5 +12,7 @@ app.use('/', router)
 
 router.route('/postSurvey').post(postSurvey);
 router.route('/postSurveyForm').post(postSurveyForm);
+
+router.route('/downloadSurveyData').get(downloadSurveyData);
 
 export default router
