@@ -3,7 +3,6 @@ import {ApiError} from "../utils/ApiError.js"
 import { Survey } from '../model/survey.model.js'
 import { ApiResponse } from "../utils/ApiResponse.js";
 import XLSX from "xlsx";
-import mongoose from "mongoose";
 
 
 const postSurvey = asyncHandler(async(req,res) => {
