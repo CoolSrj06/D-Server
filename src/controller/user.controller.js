@@ -2,8 +2,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { Survey } from '../model/survey.model.js'
 import { ApiResponse } from "../utils/ApiResponse.js";
-import XLSX from "xlsx";
-
+import xlsx from "xlsx";
+import fs from "fs";
 
 const postSurvey = asyncHandler(async(req,res) => {
     try{
@@ -32,7 +32,7 @@ const postSurvey = asyncHandler(async(req,res) => {
 const postSurveyForm = asyncHandler(async(req,res) => {
     try{
         const { name, email, message, surveyId } = req.body;
-
+        
         if (!name?.trim() || !message?.trim() || !email?.trim()){
             throw new ApiError(400, "name, message and email fields are required");
         }
@@ -43,13 +43,29 @@ const postSurveyForm = asyncHandler(async(req,res) => {
             return res.status(400).json({ message: "Invalid email format" });
         }
 
+        // Check for duplicate survey response
+        const existingSurveyResponse = await Survey.findOne({
+            surveyFormData: {
+                $elemMatch: { 
+                    email: email.trim(),
+                    name: name.trim(),
+                    message: message.trim(), 
+                },
+            },
+        });
+
+        console.log(existingSurveyResponse); // Debugging: Check the existingSurveyResponse
+        
+        if (existingSurveyResponse) {
+            throw new ApiError(400,"Duplicate form submission detected");
+        }
         //Create a new answer object
         const newSurvey = {
             name: name.trim(),
             email: email.trim(), // Ensure no leading/trailing spaces
             message: message.trim(), // Ensure no leading/trailing spaces
         };
-    
+        
         // Find the surveyDetail by ID and update it
         const surveyDetail = await Survey.findById(surveyId);
     
@@ -118,12 +134,12 @@ const downloadSurveyData = asyncHandler(async (req, res) => {
     ])];
  
 
-    const worksheet = XLSX.utils.aoa_to_sheet(dataWithHeading); // Converts array of arrays to a worksheet
-    const workbook = XLSX.utils.book_new(); // Creates a new workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, "SurveyData"); // Adds the worksheet to the workbook
+    const worksheet = xlsx.utils.aoa_to_sheet(dataWithHeading); // Converts array of arrays to a worksheet
+    const workbook = xlsx.utils.book_new(); // Creates a new workbook
+    xlsx.utils.book_append_sheet(workbook, worksheet, "SurveyData"); // Adds the worksheet to the workbook
 
     // Step 4: Write the workbook to a buffer
-    const excelBuffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    const excelBuffer = xlsx.write(workbook, { type: "buffer", bookType: "xlsx" });
 
     // Step 5: Send the Excel file as a response
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -131,8 +147,38 @@ const downloadSurveyData = asyncHandler(async (req, res) => {
     res.send(excelBuffer);
 })
 
+const uploadExcelSurveyData = asyncHandler(async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+
+        // Read the uploaded Excel file
+        const workbook = xlsx.readFile(req.file.path);
+        const sheetName = workbook.SheetNames[0]; // Get first sheet
+        const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        // Return JSON response
+        //console.log(jsonData);
+
+        // Delete the file after processing
+        fs.unlink(req.file.path, (err) => {
+            if (err) {
+            console.error("Error deleting file:", err);
+            } else {
+            console.log("File deleted:", req.file.path);
+            }
+        });
+        
+        res.json({ data: jsonData });
+    } catch (error) {
+        res.status(500).json({ message: "Error processing file", error });
+    }
+});
+
 export {
     postSurvey,
     postSurveyForm,
     downloadSurveyData,
+    uploadExcelSurveyData
 };
