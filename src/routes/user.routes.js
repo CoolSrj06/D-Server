@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { postSurvey , postSurveyForm , downloadSurveyData, 
+import { postSurvey , postSurveyForm , downloadSurveyData, paginatedCSVData,
     uploadExcelSurveyData, handleAdminLogin, handleUserSignUp, handleSalesLogin, pushCSVData } from "../controller/user.controller.js";
 //import { verifyJWT } from "../middleware/auth.js"
 import {upload} from "../middleware/multer.middleware.js"
@@ -20,6 +20,7 @@ router.post('/salesLogin', handleSalesLogin);
 router.route('/pushCSVData').post(pushCSVData);
 
 router.route('/downloadSurveyData').get(downloadSurveyData);
+router.route('/paginatedCSVData').get(paginatedCSVData);
 
 
 export default router
