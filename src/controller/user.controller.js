@@ -315,19 +315,12 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
         // Convert sheet to JSON with raw=false to handle dates properly
         const rawData = xlsx.utils.sheet_to_json(sheet, { header: 1, raw: false });
 
-        if (rawData.length < 3) {
+        if (rawData.length < 2) {
             return res.status(400).json({ message: "Invalid file format: Missing headers or data" });
         }
 
-        // Predefined headers
-        const finalHeaders = [
-            "SrNo.", "Date", "Industries ID", "Report Title", "Report ID", "Historical Range",
-            "Base Year", "Forecast Period", "Industry", "Market Size (USD Billion)", "CAGR (%)",
-            "Market Overview", "Market Dynamics - Market Drivers", "Market Dynamics - Market Restrain",
-            "Market Dynamics - Market Opp", "Market Dynamics - Market Challenges", "Market Segmentation",
-            "Regional Analysis", "Competitive Landscape", "Market Key Segments", "BY geo",
-            "Key Global Market Players"
-        ];
+        // Extract headers from the first row
+        const headers = rawData[0];
 
         // Function to convert Excel serial date to standard date format
         const convertExcelDate = (serial) => {
@@ -336,12 +329,12 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
             return excelDate.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
         };
 
-        // Extract data from row 3 onward
-        jsonData = rawData.slice(2).map(row => {
+        // Extract data from second row onward
+        jsonData = rawData.slice(1).map(row => {
             let rowData = {};
-            finalHeaders.forEach((header, index) => {
+            headers.forEach((header, index) => {
                 if (header && row[index] !== undefined) { // Exclude empty columns
-                    rowData[header] = header === "Date" ? convertExcelDate(row[index]) : row[index];
+                    rowData[header] = header.toLowerCase().includes("date") ? convertExcelDate(row[index]) : row[index];
                 }
             });
             return rowData;
@@ -361,7 +354,6 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
         res.status(500).json({ message: "Error processing file", error: error.message });
     }
 });
-
 
 const pushCSVData = asyncHandler(async (req, res) => {
     try {
