@@ -10,6 +10,8 @@ const CSVDataSchema = mongoose.Schema({
     "Base Year": { type: Number },
     "Forecast Period": { type: String },
     Industry: { type: String },
+    "Market Size - 2025 (USD Billion)" : { type: String },
+    "Market Size - 2032 (USD Billion)" : { type: String },
     "Market Size (USD Billion)": { type: String },
     "CAGR (%)": { type: Number },
     "Market Overview": { type: String },
