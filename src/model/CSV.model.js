@@ -5,7 +5,7 @@ const CSVDataSchema = mongoose.Schema({
     Date: { type: String },
     "Industries ID": { type: String },
     "Report Title": { type: String },
-    "Report ID": { type: Number },
+    "Report ID": { type: String },
     "Historical Range": { type: String },
     "Base Year": { type: Number },
     "Forecast Period": { type: String },

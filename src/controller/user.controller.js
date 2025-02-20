@@ -337,7 +337,7 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
         };
 
         // Extract data from row 3 onward
-        const jsonData = rawData.slice(2).map(row => {
+        jsonData = rawData.slice(2).map(row => {
             let rowData = {};
             finalHeaders.forEach((header, index) => {
                 if (header && row[index] !== undefined) { // Exclude empty columns
