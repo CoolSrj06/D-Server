@@ -405,13 +405,24 @@ const pushCSVData = asyncHandler(async (req, res) => {
 
 const paginatedCSVData = asyncHandler(async (req, res) => {
     try {
+        const industryID = req.query.industryID;
         const page = parseInt(req.query.page) || 1; // Get page number from query parameters
         const limit = parseInt(req.query.limit) || 10; // Get limit from query parameters
 
-        const startIndex = (page - 1) * limit; // Calculate start index
-        const total = await CSVData.countDocuments(); // Get total documents count
+        //console.log(industryID, page, limit); // Debugging: Check the query parameters
+        
 
-        const products = await CSVData.find({}, { Date : 1,'Report Title' : 1, 'Forecast Period': 1, 'CAGR (%)' : 1, 'Market Size (USD Billion)' : 1, _id: 0 })
+        const startIndex = (page - 1) * limit; // Calculate start index
+
+        // Build query filter
+        const filter = industryID ? { "Industries ID": industryID } : {}; // Apply filter only if industryID is provided
+        //console.log(filter);
+
+        const total = await CSVData.countDocuments(filter); // Get total documents count with filter
+        //console.log(total);
+        
+
+        const products = await CSVData.find( filter, { Date : 1,'Report Title' : 1,'Industry' : 1, 'Forecast Period': 1, 'CAGR (%)' : 1, 'Market Size (USD Billion)' : 1, _id: 0 })
             .limit(limit) // Limit documents
             .skip(startIndex) // Skip documents
         
