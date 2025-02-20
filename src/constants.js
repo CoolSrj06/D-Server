@@ -1,1 +1,1 @@
-export const DB_NAME = "Survey-form"
+export const DB_NAME = "DataverseDB";
