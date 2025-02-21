@@ -438,6 +438,22 @@ const paginatedCSVData = asyncHandler(async (req, res) => {
     }
 })
 
+const handleReport = asyncHandler(async (req, res) => {
+    try {
+        const reportId = req.query.reportId;        
+        const report = await CSVData.findOne({ "Report ID": reportId });
+        //console.log(report);
+        if (!report) {
+            return res.status(404).json({ message: "Report not found" });
+        }
+        res.json(report);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error fetching report" });
+    }   
+})
+
 export {
     postSurvey,
     postSurveyForm,
@@ -448,4 +464,5 @@ export {
     handleSalesLogin,  
     pushCSVData,
     paginatedCSVData,  
+    handleReport,
 };
