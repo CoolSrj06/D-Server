@@ -423,7 +423,7 @@ const paginatedCSVData = asyncHandler(async (req, res) => {
         //console.log(total);
         
 
-        const products = await CSVData.find( filter, { Date : 1,'Report Title' : 1,'Industry' : 1, 'Forecast Period': 1, 'CAGR (%)' : 1, 'Market Size - 2025 (USD Billion)' : 1, 'Market Size - 2025 (USD Billion)' : 1,'Report ID' : 1, _id: 0 })
+        const products = await CSVData.find( filter, { Date : 1,'Report Title' : 1,'Industry' : 1, 'Forecast Period': 1, 'CAGR (%)' : 1, 'Market Size - 2025 (USD Billion)' : 1, 'Market Size - 2032 (USD Billion)' : 1,'Report ID' : 1, _id: 0 })
             .limit(limit) // Limit documents
             .skip(startIndex) // Skip documents
         
