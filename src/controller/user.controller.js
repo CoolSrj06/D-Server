@@ -319,6 +319,15 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
             return res.status(400).json({ message: "Invalid file format: Missing headers or data" });
         }
 
+        const finalHeaders = [
+            "SrNo.", "Date", "Industries ID", "Report Title", "Report ID", "Historical Range",
+            "Base Year", "Forecast Period", "Industry", "Market Size - 2025 (USD Billion)", "Market Size - 2032 (USD Billion)", "Market Size (USD Billion)", "CAGR (%)",
+            "Market Overview", "Market Dynamics - Market Drivers", "Market Dynamics - Market Restrain",
+            "Market Dynamics - Market Opp", "Market Dynamics - Market Challenges", "Market Segmentation",
+            "Regional Analysis", "Competitive Landscape", "Market Key Segments", "BY geo",
+            "Key Global Market Players"
+        ];
+
         // Extract headers from the first row
         const headers = rawData[0];
 
@@ -332,9 +341,9 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
         // Extract data from second row onward
         jsonData = rawData.slice(1).map(row => {
             let rowData = {};
-            headers.forEach((header, index) => {
+            finalHeaders.forEach((header, index) => {
                 if (header && row[index] !== undefined) { // Exclude empty columns
-                    rowData[header] = header.toLowerCase().includes("date") ? convertExcelDate(row[index]) : row[index];
+                    rowData[header] = header === "Date" ? convertExcelDate(row[index]) : row[index];
                 }
             });
             return rowData;
@@ -414,14 +423,13 @@ const paginatedCSVData = asyncHandler(async (req, res) => {
         //console.log(total);
         
 
-        const products = await CSVData.find( filter, { Date : 1,'Report Title' : 1,'Industry' : 1, 'Forecast Period': 1, 'CAGR (%)' : 1, 'Market Size (USD Billion)' : 1, _id: 0 })
+        const products = await CSVData.find( filter, { Date : 1,'Report Title' : 1,'Industry' : 1, 'Forecast Period': 1, 'CAGR (%)' : 1, 'Market Size - 2025 (USD Billion)' : 1, 'Market Size - 2025 (USD Billion)' : 1,'Report ID' : 1, _id: 0 })
             .limit(limit) // Limit documents
             .skip(startIndex) // Skip documents
         
         res.json({
             page,
             total,
-            products,
             totalPages: Math.ceil(total / limit), // Calculate total pages
             data: products
         });
