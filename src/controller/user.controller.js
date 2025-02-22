@@ -6,6 +6,7 @@ import xlsx from "xlsx";
 import fs from "fs";
 import { User } from "../model/admin.model.js";
 import { CSVData } from "../model/CSV.model.js";
+import { ContactForm } from "../model/contactForm.model.js";
 
 const generateAccessAndRefreshTokens = (async(userId) => {
     try {
@@ -168,6 +169,9 @@ const downloadSurveyData = asyncHandler(async (req, res) => {
 
 const handleUserSignUp = asyncHandler(async (req, res) => {
     const { fullName, username, password, userType } = req.body;
+
+    console.log(fullName, username, password, userType);
+    
     
     if ([fullName, userType, username, password].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required");
@@ -181,13 +185,15 @@ const handleUserSignUp = asyncHandler(async (req, res) => {
         throw new ApiError(409, "User with email or username already exists");
     }
     
+    //console.log(existedUser);
+    
     try {
         const user = await User.create({
         fullName,
         userType,
         password,
         username: username.toLowerCase(),
-        });
+        });    
     
         const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
@@ -198,8 +204,8 @@ const handleUserSignUp = asyncHandler(async (req, res) => {
         return res.status(201).json(createdUser);
     } catch (error) {
         if (error.name === "ValidationError") {
-        // Handle Mongoose validation errors
         
+        // Handle Mongoose validation errors
         const validationErrors = Object.keys(error.errors).map(field => ({
             field,
             message: error.errors[field].message
@@ -454,6 +460,34 @@ const handleReport = asyncHandler(async (req, res) => {
     }   
 })
 
+const handleContactForm = asyncHandler(async (req, res) => {
+    try {
+        const { firstName, lastName, email, phone, jobTitle, companyName, subject, message } = req.body;
+        if (!firstName ||!lastName ||!email ||!phone ||!jobTitle ||!companyName ||!subject ||!message) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        const newContactForm = new ContactForm({
+            firstName:  firstName,
+            lastName : lastName,
+            email : email,
+            phone : phone,
+            jobTitle : jobTitle,
+            companyName : companyName,
+            subject : subject,
+            message : message
+        });
+
+        await newContactForm.save();
+
+        res.status(201).json({ message: "Form submitted successfully" });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error submitting form", error: error.message });
+    }
+});
+
 export {
     postSurvey,
     postSurveyForm,
@@ -465,4 +499,5 @@ export {
     pushCSVData,
     paginatedCSVData,  
     handleReport,
+    handleContactForm,
 };
