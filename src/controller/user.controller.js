@@ -6,7 +6,6 @@ import xlsx from "xlsx";
 import fs from "fs";
 import { User } from "../model/admin.model.js";
 import { CSVData } from "../model/CSV.model.js";
-import { ContactForm } from "../model/contactForm.model.js";
 
 const generateAccessAndRefreshTokens = (async(userId) => {
     try {
@@ -352,8 +351,14 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
                     rowData[header] = header === "Date" ? convertExcelDate(row[index]) : row[index];
                 }
             });
-            return rowData;
-        });
+            // Only return rowData if it's not empty
+            if (Object.keys(rowData).length > 0) {
+                return rowData;
+            }
+
+            // If the rowData is empty, return nothing (i.e., skip this row)
+            return null;
+        }).filter(row => row !== null); // Remove null values (empty rows)
 
         // Delete the file after processing
         fs.unlink(req.file.path, (err) => {
@@ -387,16 +392,28 @@ const pushCSVData = asyncHandler(async (req, res) => {
         if (jsonData.length === 0) {
             return res.status(400).json({ message: "No data to upload." });
         }
-
-        //console.log(jsonData); // Debugging: Check the jsonData
         
-        // Create a new document with the stored JSON data
-        const newDataArray = jsonData.map(data => new CSVData(data));
+        // Validate each record before inserting
+        const invalidEntries = [];
+        for (let i = 0; i < jsonData.length; i++) {
+            const data = new CSVData(jsonData[i]);
+            const validationError = data.validateSync(); // Validate without saving
 
-        //console.log(newData); // Debugging: Check the newData
+            if (validationError) {
+                invalidEntries.push({ id: i, errors: validationError.errors });
+            }
+        }
+
+        // If any data is invalid, return errors and do not insert anything
+        if (invalidEntries.length > 0) {
+            return res.status(400).json({
+                message: "Some records are invalid. No data was pushed.",
+                invalidEntries
+            });
+        }
         
-        // Save the data in the MongoDB database
-        await Promise.all(newDataArray.map(newData => newData.save()));
+        // If all data is valid, insert into MongoDB
+        await CSVData.insertMany(jsonData);
 
         // Clear stored data after successful save
         jsonData = null;
@@ -460,33 +477,7 @@ const handleReport = asyncHandler(async (req, res) => {
     }   
 })
 
-const handleContactForm = asyncHandler(async (req, res) => {
-    try {
-        const { firstName, lastName, email, phone, jobTitle, companyName, subject, message } = req.body;
-        if (!firstName ||!lastName ||!email ||!phone ||!jobTitle ||!companyName ||!subject ||!message) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
 
-        const newContactForm = new ContactForm({
-            firstName:  firstName,
-            lastName : lastName,
-            email : email,
-            phone : phone,
-            jobTitle : jobTitle,
-            companyName : companyName,
-            subject : subject,
-            message : message
-        });
-
-        await newContactForm.save();
-
-        res.status(201).json({ message: "Form submitted successfully" });
-        
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error submitting form", error: error.message });
-    }
-});
 
 export {
     postSurvey,
@@ -499,5 +490,4 @@ export {
     pushCSVData,
     paginatedCSVData,  
     handleReport,
-    handleContactForm,
 };

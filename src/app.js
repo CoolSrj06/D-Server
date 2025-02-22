@@ -7,6 +7,7 @@ dotenv.config();
 const app = express()
 
 // app.use() is a function in Express.js that allows you to add middleware to your application
+
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true
