@@ -22,11 +22,14 @@ app.use(cookieParser())
 
 //routes import
 import userRoute from './routes/user.routes.js';
+import contactRoute from './routes/contacts.routes.js';
+
 //import { errorHandler } from './middleware/errorHandler.js';
 
 
 //routes declaration
 app.use("/", userRoute)
+app.use("/", contactRoute)
 
 // Error handling middleware (must be after all routes)
 //app.use(errorHandler);

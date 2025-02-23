@@ -1,17 +1,16 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ContactForm } from "../model/contactForm.model.js";
+import { ContactUsForm } from "../model/contactUsForm.model.js";
 import { buyReportRequest } from "../model/buyReportForm.model.js";
-import { customReportRequest } from "../model/customReportRequest.model.js";
-import { freeSampleRequest } from "../model/freeSampleRequest.model.js";
+import { customReportOrDemoReportRequest } from "../model/customReportOrDemoReportRequest.model.js";
 
-const handleContactForm = asyncHandler(async (req, res) => {
+const handleContactUsForm = asyncHandler(async (req, res) => {
     try {
-        const { firstName, lastName, email, phone, jobTitle, companyName, subject, message } = req.body;
-        if (!firstName ||!lastName ||!email ||!phone ||!jobTitle ||!companyName ||!subject ||!message) {
+        const { firstName, lastName, email, phone, jobTitle, companyName, subject, message, formId } = req.body;
+        if (!firstName ||!lastName ||!email ||!phone ||!jobTitle ||!companyName ||!subject ||!message || !formId) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const newContactForm = new ContactForm({
+        const newContactForm = new ContactUsForm({
             firstName:  firstName,
             lastName : lastName,
             email : email,
@@ -19,7 +18,8 @@ const handleContactForm = asyncHandler(async (req, res) => {
             jobTitle : jobTitle,
             companyName : companyName,
             subject : subject,
-            message : message
+            message : message,
+            formId : formId
         });
 
         await newContactForm.save();
@@ -34,18 +34,23 @@ const handleContactForm = asyncHandler(async (req, res) => {
 
 const handleBuyReportForm = asyncHandler(async (req, res) => {
     try {
-        const { name, email, phone, companyName, address, reportId } = req.body;
-        if (!name ||!email ||!phone ||!companyName ||!address ||!reportId) {
+        const { firstName, lastName, email, phone, jobTitle ,companyName, subject, message, address, reportId, formId } = req.body;
+        if (!firstName || !lastName ||!email ||!phone || !jobTitle ||!companyName ||!subject ||!message ||!address ||!reportId ||!formId) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
         const newBuyReportForm = new buyReportRequest({
-            name:  name,
+            firstName:  firstName,
+            lastName : lastName,
             email : email,
             phone : phone,
+            jobTitle : jobTitle,
             companyName : companyName,
+            subject : subject,
+            message : message,
             address : address,
-            reportId : reportId
+            reportId : reportId,
+            formId : formId
         });
 
         await newBuyReportForm.save();
@@ -58,21 +63,24 @@ const handleBuyReportForm = asyncHandler(async (req, res) => {
     }
 });
 
-const handleCustomReportRequest = asyncHandler(async (req, res) => {
+const handleCustomReportOrDemoReportRequest = asyncHandler(async (req, res) => {
     try {
-        const { name, email, phone, companyName, jobTitle, message, reportId } = req.body;
-        if (!name ||!email ||!phone ||!companyName ||!jobTitle ||!message ||!reportId) {
+        const { firstName, lastName, email, phone, jobTitle, companyName, subject, message, reportId, formId } = req.body;
+        if (!firstName ||!lastName ||!email ||!phone ||!companyName ||!subject ||!jobTitle ||!message ||!reportId || !formId) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const newCustomReportRequest = new customReportRequest({
-            name:  name,
+        const newCustomReportRequest = new customReportOrDemoReportRequest({
+            firstName:  firstName,
+            lastName : lastName,
             email : email,
             phone : phone,
             companyName : companyName,
+            subject : subject,
             jobTitle : jobTitle,
             message : message,
-            reportId : reportId
+            reportId : reportId,
+            formId : formId
         });
 
         await newCustomReportRequest.save();
@@ -85,34 +93,8 @@ const handleCustomReportRequest = asyncHandler(async (req, res) => {
     }
 });
 
-const handleFreeSampleRequest = asyncHandler(async (req, res) => {
-    try {
-        const { name, email, phone, companyName, reportId } = req.body;
-        if (!name ||!email ||!phone ||!companyName ||!reportId) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-        
-        const newFreeSampleRequest = new freeSampleRequest({
-            name:  name,
-            email : email,
-            phone : phone,
-            companyName : companyName,
-            reportId : reportId
-        });
-        
-        await newFreeSampleRequest.save();
-        
-        res.status(201).json({ message: "Form submitted successfully" });
-        
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error submitting form", error: error.message });
-    }
-});
-
 export {
-    handleContactForm,
-    handleCustomReportRequest,
-    handleFreeSampleRequest,
+    handleContactUsForm,
+    handleCustomReportOrDemoReportRequest,
     handleBuyReportForm
 }

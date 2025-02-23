@@ -2,7 +2,7 @@ import { Router } from "express";
 import express from "express";
 import { postSurvey , postSurveyForm , downloadSurveyData, paginatedCSVData, handleReport,
     uploadExcelSurveyData, handleAdminLogin, handleUserSignUp, handleSalesLogin, pushCSVData } from "../controller/user.controller.js";
-import { handleContactForm } from "../controller/contacts.controller.js";
+//import { handleContactForm } from "../controller/contacts.controller.js";
 //import { verifyJWT } from "../middleware/auth.js"
 import {upload} from "../middleware/multer.middleware.js"
 
@@ -37,8 +37,5 @@ router.route('/paginatedCSVData').get(paginatedCSVData);
 
 // fetch report data from mongodb storage and send to frontend
 router.route('/handleReport').get(handleReport);
-
-// Contact form data from frontend and send to mongodb storage
-router.route('/contactUs').post(handleContactForm);
 
 export default router

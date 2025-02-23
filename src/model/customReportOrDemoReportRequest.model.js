@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const buyReportFormSchema = new mongoose.Schema({
+const customReportOrDemoReportRequestSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: [true, 'first name is required'],
@@ -21,11 +21,10 @@ const buyReportFormSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Email is required'],
         trim: true,
+        index: true,
         lowercase: true,
-        match: [
-            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            'Please enter a valid email address',
-        ],
+        minlength: [6, 'Email must be at least 6 characters long'],
+        maxlength: [50, 'Email cannot exceed 50 characters']
     },
     phone: {
         type: String,
@@ -33,7 +32,7 @@ const buyReportFormSchema = new mongoose.Schema({
         trim: true,
         index: true,
         minlength: [10, 'Phone number must be at least 10 characters long'],
-        maxlength: [15, 'Phone number cannot exceed 15 characters'],
+        maxlength: [17, 'Phone number cannot exceed 17 characters'],
         match: [
             /^\+?[1-9]\d{1,14}$/,
             'Please enter a valid phone number (E.164 format)',
@@ -46,20 +45,14 @@ const buyReportFormSchema = new mongoose.Schema({
         index: true,
         minlength: [3, 'Job title must be at least 3 characters long'],
         maxlength: [50, 'Job title cannot exceed 50 characters']
-    },  
+    },
     companyName: {
         type: String,
         required: [true, 'Company name is required'],
         trim: true,
-        minlength: [2, 'Company name must be at least 2 characters long'],
-        maxlength: [100, 'Company name cannot exceed 100 characters'],
-    },
-    address: {
-        type: String,
-        required: [true, 'Address is required'],
-        trim: true,
-        minlength: [2, 'Company name must be at least 2 characters long'],
-        maxlength: [100, 'Company name cannot exceed 100 characters'],
+        index: true,
+        minlength: [3, 'Company name must be at least 3 characters long'],
+        maxlength: [50, 'Company name cannot exceed 50 characters']
     },
     subject: {
         type: String,
@@ -77,16 +70,16 @@ const buyReportFormSchema = new mongoose.Schema({
         minlength: [3, 'Message must be at least 3 characters long'],
         maxlength: [500, 'Message cannot exceed 500 characters']
     },
+    formId: {
+        type: String,
+        required: [true, 'Form ID is required'],
+        trim: true,
+    },
     reportId: {
         type: String,
         required: [true, 'Report ID is required'],
         trim: true,
     },
-    formId: {
-        type: String,
-        required: [true, 'Form ID is required'],
-        trim: true,
-    }
 }, { timestamps: true });
 
-export const buyReportRequest =  mongoose.model('buyReportRequest', buyReportFormSchema);
+export const customReportOrDemoReportRequest =  mongoose.model('customReportOrDemoReportRequest', customReportOrDemoReportRequestSchema);

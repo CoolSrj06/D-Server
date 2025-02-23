@@ -13,7 +13,7 @@ const CSVDataSchema = mongoose.Schema({
     "Market Size - 2025 (USD Billion)" : { type: String },
     "Market Size - 2032 (USD Billion)" : { type: String },
     "Market Size (USD Billion)": { type: String },
-    "CAGR (%)": { type: Number },
+    "CAGR (%)": { type: String },
     "Market Overview": { type: String },
     "Market Dynamics - Market Drivers": { type: String },
     "Market Dynamics - Market Restrain": { type: String },

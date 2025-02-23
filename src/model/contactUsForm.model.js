@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const contactForm = new mongoose.Schema({
+const contactUsFormSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: [true, 'first name is required'],
@@ -32,7 +32,11 @@ const contactForm = new mongoose.Schema({
         trim: true,
         index: true,
         minlength: [10, 'Phone number must be at least 10 characters long'],
-        maxlength: [15, 'Phone number cannot exceed 15 characters']
+        maxlength: [17, 'Phone number cannot exceed 17 characters'],
+        match: [
+            /^\+?[1-9]\d{1,14}$/,
+            'Please enter a valid phone number (E.164 format)',
+        ],
     },
     jobTitle: {
         type: String,
@@ -66,6 +70,11 @@ const contactForm = new mongoose.Schema({
         minlength: [3, 'Message must be at least 3 characters long'],
         maxlength: [500, 'Message cannot exceed 500 characters']
     },
+    formId: {
+        type: String,
+        required: [true, 'Form ID is required'],
+        trim: true,
+    }
 }, {timestamps: true});
 
-export const ContactForm =  mongoose.model('ContactForm', contactForm);
+export const ContactUsForm =  mongoose.model('ContactUsForm', contactUsFormSchema);
