@@ -1,8 +1,7 @@
 import { Router } from "express";
 import express from "express";
 import { postSurvey , postSurveyForm , downloadSurveyData, paginatedCSVData, handleReport,
-    uploadExcelSurveyData, handleAdminLogin, handleUserSignUp, handleSalesLogin, pushCSVData } from "../controller/user.controller.js";
-//import { handleContactForm } from "../controller/contacts.controller.js";
+     handleAdminLogin, handleUserSignUp, handleSalesLogin } from "../controller/user.controller.js";
 //import { verifyJWT } from "../middleware/auth.js"
 import {upload} from "../middleware/multer.middleware.js"
 
@@ -16,18 +15,12 @@ app.use('/', router)
 router.route('/postSurvey').post(postSurvey);
 router.route('/postSurveyForm').post(postSurveyForm);
 
-// upload excel file on server
-router.route('/upload').post(upload.single('file'),uploadExcelSurveyData);
-
 // User Signup
 router.post('/signUp',handleUserSignUp);
 
 // Admin and Sales Login
 router.post('/adminLogin', handleAdminLogin);
 router.post('/salesLogin', handleSalesLogin);
-
-// push CSV data from server to mongodb storage
-router.route('/pushCSVData').post(pushCSVData);
 
 // download survey data from mongodb storage
 router.route('/downloadSurveyData').get(downloadSurveyData);
