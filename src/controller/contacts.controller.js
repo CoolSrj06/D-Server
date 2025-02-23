@@ -35,7 +35,7 @@ const handleContactUsForm = asyncHandler(async (req, res) => {
 const handleBuyReportForm = asyncHandler(async (req, res) => {
     try {
         const { firstName, lastName, email, phone, jobTitle ,companyName, subject, message, address, reportId, formId } = req.body;
-        if (!firstName || !lastName ||!email ||!phone || !jobTitle ||!companyName ||!subject ||!message ||!address ||!reportId ||!formId) {
+        if (!firstName || !lastName ||!email ||!phone ||!companyName ||!address ||!reportId ||!formId) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
