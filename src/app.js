@@ -24,6 +24,7 @@ app.use(cookieParser())
 import userRoute from './routes/user.routes.js';
 import contactRoute from './routes/contacts.routes.js';
 import excelOperationRoute from './routes/excelOperations.routes.js';
+import keyStatictics from "./routes/keyStatictics.routes.js";
 
 //import { errorHandler } from './middleware/errorHandler.js';
 
@@ -32,6 +33,7 @@ import excelOperationRoute from './routes/excelOperations.routes.js';
 app.use("/", userRoute)
 app.use("/", contactRoute)
 app.use("/", excelOperationRoute)
+app.use("/", keyStatictics)
 
 // Error handling middleware (must be after all routes)
 //app.use(errorHandler);

@@ -3,7 +3,6 @@ import express from "express";
 import { postSurvey , postSurveyForm , downloadSurveyData, paginatedCSVData, handleReport,
      handleAdminLogin, handleUserSignUp, handleSalesLogin } from "../controller/user.controller.js";
 //import { verifyJWT } from "../middleware/auth.js"
-import {upload} from "../middleware/multer.middleware.js"
 
 const app = express();
 const router = Router();
