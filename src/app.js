@@ -25,6 +25,7 @@ import userRoute from './routes/user.routes.js';
 import contactRoute from './routes/contacts.routes.js';
 import excelOperationRoute from './routes/excelOperations.routes.js';
 import keyStatictics from "./routes/keyStatictics.routes.js";
+import admin from "./routes/admin.routes.js";
 
 //import { errorHandler } from './middleware/errorHandler.js';
 
@@ -34,6 +35,7 @@ app.use("/", userRoute)
 app.use("/", contactRoute)
 app.use("/", excelOperationRoute)
 app.use("/", keyStatictics)
+app.use("/admin", admin)
 
 // Error handling middleware (must be after all routes)
 //app.use(errorHandler);
