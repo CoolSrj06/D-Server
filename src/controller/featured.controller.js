@@ -52,7 +52,8 @@ const featuredReports = asyncHandler(async (req, res) => {
 
 const fullDetailOfFeaturedReports = asyncHandler(async (req, res) => {
     try {
-        const featuredReports = await CSVData.find({ "Featured": true });
+        const featuredReports = await CSVData.find({ "Featured": true }).select({ "Report ID": 1, "Report Title": 1,
+             "Industries ID": 1, "Market Size - 2025 (USD Billion)": 1, "Market Size - 2032 (USD Billion)": 1, "CAGR (%)": 1, "Forecast Period": 1 });
         res.json(
             { 
                 reports : featuredReports.length ,
