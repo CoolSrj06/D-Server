@@ -124,7 +124,7 @@ const displaySurveys = asyncHandler(async(req,res) => {
 
         const startIndex = (page - 1) * limit; // Calculate start index
 
-        const surveys = await Survey.find({}).limit(limit).skip(startIndex); // Limit documents and skip
+        const surveys = await Survey.find({}).sort({ createdAt: -1 }).limit(limit).skip(startIndex); // Limit documents and skip
 
         const total = await Survey.countDocuments(); // Get total documents count with filter
 
