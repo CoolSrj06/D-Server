@@ -22,7 +22,8 @@ const CSVDataSchema = mongoose.Schema({
     "Regional Analysis": { type: String },
     "Competitive Landscape": { type: String },
     "Market Key Segments": { type: String },
-    "Key Global Market Players": { type: String }
+    "Key Global Market Players": { type: String },
+    "Featured" : { type: Boolean, default: false },
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt fields
 });
