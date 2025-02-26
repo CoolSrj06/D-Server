@@ -38,6 +38,7 @@ const setFeatured = asyncHandler(async (req, res) => {
     }
 });
 
+// only sends the Report ID of the featured reports
 const featuredReports = asyncHandler(async (req, res) => {
     try {
         // Use select({ "Report Title": 1 }) instead of select("Report Title") to ensure Mongoose treats it as a single field.
@@ -49,8 +50,23 @@ const featuredReports = asyncHandler(async (req, res) => {
     }
 });
 
+const fullDetailOfFeaturedReports = asyncHandler(async (req, res) => {
+    try {
+        const featuredReports = await CSVData.find({ "Featured": true });
+        res.json(
+            { 
+                reports : featuredReports.length ,
+                data: featuredReports 
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error fetching featured reports", error: error.message });
+    }
+});
+
 export { 
     setFeatured,
     featuredReports,
+    fullDetailOfFeaturedReports
  };
             
