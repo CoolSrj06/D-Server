@@ -83,7 +83,6 @@ const downloadSurveyData = asyncHandler(async (req, res) => {
     res.send(excelBuffer);
 })
 
-
 const handleUserSignUp = asyncHandler(async (req, res) => {
     const { fullName, username, password, userType } = req.body;
 

@@ -116,8 +116,34 @@ const sendSurveyFormData = asyncHandler(async(req,res) => {
         res.status(500).json({ message: "Internal Server Error", error });
     }
 });
+
+const displaySurveys = asyncHandler(async(req,res) => {
+    try{
+        const page = parseInt(req.query.page) || 1; // Get page number from query parameters
+        const limit = parseInt(req.query.limit) || 10; // Get limit from query parameters
+
+        const startIndex = (page - 1) * limit; // Calculate start index
+
+        const surveys = await Survey.find({}).limit(limit).skip(startIndex); // Limit documents and skip
+
+        const total = await Survey.countDocuments(); // Get total documents count with filter
+
+        res.json({
+            total,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            surveys,
+         });
+    } catch (error) {
+        console.error("Error fetching surveys:", error);
+        // General error handling
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+});
+
 export {
     postSurvey,
     postSurveyForm,
     sendSurveyFormData,
+    displaySurveys
 }
