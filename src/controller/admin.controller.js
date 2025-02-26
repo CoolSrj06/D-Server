@@ -10,44 +10,29 @@ const handleContactForms = asyncHandler(async (req, res) => {
             return res.status(400).json({ message: 'Form ID is missing' });
         }
 
-        if(formId === 'ContactForm123') {
-            // it true fetch all data from ContactUsForm in order of creation
-            const form = await ContactUsForm.find().sort({ createdAt: -1 });
-
-            if (!form) {
-                return res.status(404).json({ message: 'Form not found' });
-            }
-
-            return res.status(200).json({ form });
-        }else if(formId === 'BuyForm123') {
-            // it true fetch all data from buyReportRequest in order of creation
-            const form = await buyReportRequest.find().sort({ createdAt: -1 });
-
-            if (!form) {
-                return res.status(404).json({ message: 'Form not found' });
-            }
-
-            return res.status(200).json({ form });
-        }else if(formId === 'CustomizeForm123') {
-            // it true fetch only data that has formId: CustomizeForm123 from customReportOrDemoReportRequest in order of creation
-            const form = await customReportOrDemoReportRequest.find({ formId: 'CustomizeForm123' }).sort({ createdAt: -1 });
-
-            if (!form) {
-                return res.status(404).json({ message: 'Form not found' });
-            }
-
-            return res.status(200).json({ form });
-        }else if(formId === 'DemoForm123') {
-            // it true fetch only data that has formId: DemoForm123 from customReportOrDemoReportRequest in order of creation
-            const form = await customReportOrDemoReportRequest.find({ formId: 'DemoForm123' }).sort({ createdAt: -1 });
-
-            if (!form) {
-                return res.status(404).json({ message: 'Form not found' });
-            }
-
-            return res.status(200).json({ form });
+        let form;
+        switch (formId) {
+            case 'ContactForm123':
+                form = await ContactUsForm.find().sort({ createdAt: -1 });
+                break;
+            case 'BuyForm123':
+                form = await buyReportRequest.find().sort({ createdAt: -1 });
+                break;
+            case 'CustomizeForm123':
+                form = await customReportOrDemoReportRequest.find({ formId: 'CustomizeForm123' }).sort({ createdAt: -1 });
+                break;
+            case 'DemoForm123':
+                form = await customReportOrDemoReportRequest.find({ formId: 'DemoForm123' }).sort({ createdAt: -1 });
+                break;
+            default:
+                return res.status(400).json({ message: 'Invalid form ID' });
         }
-        return res.status(400).json({ message: 'Invalid form ID' });
+
+        if (!form) {
+            return res.status(404).json({ message: 'Form not found' });
+        }
+        
+        res.status(200).json({ form });
     }
     catch (error) {
         console.error(error);

@@ -10,6 +10,6 @@ app.use(express.static('../'));
 app.use('/admin', router)
 
 // Contact form data from frontend and send to mongodb storage
-router.route('/contactForms').get(handleContactForms);
+router.route('/contactForms').post(handleContactForms);
 
 export default router;
