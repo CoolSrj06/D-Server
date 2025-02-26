@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { postSurvey , postSurveyForm , downloadSurveyData, paginatedCSVData, handleReport,
+import { downloadSurveyData, paginatedCSVData, handleReport,
      handleAdminLogin, handleUserSignUp, handleSalesLogin } from "../controller/user.controller.js";
 //import { verifyJWT } from "../middleware/auth.js"
 
@@ -9,10 +9,6 @@ const router = Router();
 
 app.use(express.static('../'));
 app.use('/', router)
-
-// push 
-router.route('/postSurvey').post(postSurvey);
-router.route('/postSurveyForm').post(postSurveyForm);
 
 // User Signup
 router.post('/signUp',handleUserSignUp);
