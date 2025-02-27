@@ -9,6 +9,18 @@ const setFeatured = asyncHandler(async (req, res) => {
             return res.status(400).json({ message: "Replacing and New IDs are required" });
         }
 
+        // Check if the newId is already featured
+        const newFeaturedCheck = await CSVData.findOne({ "Report ID": newId });
+        
+        if (!newFeaturedCheck) {
+            return res.status(404).json({ message: "New featured document not found" });
+        }
+        
+        if (newFeaturedCheck["Featured"]) {
+            return res.status(400).json({ message: "The new document is already featured" });
+        }
+ 
+
         // Update the existing featured document to false
         const existingFeatured = await CSVData.findOneAndUpdate(
             { "Report ID": replacingId }, 
