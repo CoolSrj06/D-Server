@@ -12,5 +12,6 @@ app.use('/survey', router)
 router.route('/postSurvey').post(postSurvey);
 router.route('/sendSurveyFormData').post(sendSurveyFormData);
 router.route('/displaySurveys').get(displaySurveys);
+router.route('/postSurveyForm').post(postSurveyForm);
 
 export default router;

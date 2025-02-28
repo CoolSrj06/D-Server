@@ -28,8 +28,7 @@ import keyStatictics from "./routes/keyStatictics.routes.js";
 import admin from "./routes/admin.routes.js";
 import survey from "./routes/survey.routes.js";
 import featured from "./routes/featured.routes.js";
-
-//import { errorHandler } from './middleware/errorHandler.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 
 //routes declaration
@@ -42,6 +41,6 @@ app.use("/survey", survey)
 app.use("/featured", featured)
 
 // Error handling middleware (must be after all routes)
-//app.use(errorHandler);
+app.use(errorHandler);
 
 export { app }

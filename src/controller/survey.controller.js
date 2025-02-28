@@ -36,12 +36,13 @@ const postSurvey = asyncHandler(async(req,res) => {
     }
 });
 
-const postSurveyForm = asyncHandler(async(req,res) => {
+const postSurveyForm = asyncHandler(async(req,res,next) => {
     try{
-        const { name, email, message, surveyId } = req.body;
+        const { firstName, lastName, email, phone, jobTitle, companyName, subject, message, surveyId } = req.body;
         
-        if (!name?.trim() || !message?.trim() || !email?.trim()){
-            throw new ApiError(400, "name, message and email fields are required");
+        if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !phone?.trim() || 
+            !jobTitle?.trim() || !companyName?.trim() || !subject?.trim() || !message?.trim() || !email?.trim()){
+            throw new ApiError(400, "All feilds are required fields are required");
         }
 
         // Validate email format
@@ -54,30 +55,38 @@ const postSurveyForm = asyncHandler(async(req,res) => {
         const existingSurveyResponse = await Survey.findOne({
             surveyFormData: {
                 $elemMatch: { 
-                    email: email.trim(),
-                    name: name.trim(),
-                    message: message.trim(), 
+                    email: email.trim(), // Ensure no leading/trailing spaces
+                    firstName: firstName.trim(),
+                    lastName: lastName.trim(),
+                    message: message.trim(),
+                    phone: phone.trim(),
+                    jobTitle: jobTitle.trim(),
+                    companyName: companyName.trim(),
+                    subject: subject.trim(), 
                 },
             },
         });
-
-        console.log(existingSurveyResponse); // Debugging: Check the existingSurveyResponse
         
         if (existingSurveyResponse) {
-            throw new ApiError(400,"Duplicate form submission detected");
+            return next(new ApiError(404, "Survey Detail not found"));
         }
         //Create a new answer object
         const newSurvey = {
-            name: name.trim(),
-            email: email.trim(), // Ensure no leading/trailing spaces
-            message: message.trim(), // Ensure no leading/trailing spaces
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim(),
+            phone: phone.trim(),
+            jobTitle: jobTitle.trim(),
+            companyName: companyName.trim(),
+            subject: subject.trim(),
+            message: message.trim(),
         };
         
         // Find the surveyDetail by ID and update it
         const surveyDetail = await Survey.findById(surveyId);
     
         if (!surveyDetail) {
-            return res.status(404).json({ message: "Survey Detail not found" });
+            return next(new ApiError(404, "Survey Detail not found"));
         }
         
         // Add the new answer to the answers array
@@ -89,7 +98,7 @@ const postSurveyForm = asyncHandler(async(req,res) => {
     } catch (error) {
         console.error("Error submitting surveyForm:", error);
         // General error handling
-        res.status(500).json({ message: "Internal Server Error", error });
+        next(error); 
     }
 });
 
