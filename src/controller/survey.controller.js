@@ -160,8 +160,6 @@ const displaySurveys = asyncHandler(async (req, res) => {
     }
 });
 
-
-
 const downloadSurveyData = asyncHandler(async (req, res) => {
     const { surveyId } = req.query;
     let survey = [];

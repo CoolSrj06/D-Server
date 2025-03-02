@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
     },
     userType: {
         type: String,
-        enum: ['admin', 'sales'],
+        enum: ['admin', 'sales', 'market'],
     },
     refreshToken: {
         type: String,
