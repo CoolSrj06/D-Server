@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { handleAdminLogin, handleUserSignUp, handleSalesLogin, users, deleteUser } from "../controller/user.controller.js";
+import { handleUserLogin, handleUserSignUp, users, deleteUser } from "../controller/user.controller.js";
 //import { verifyJWT } from "../middleware/auth.js"
 
 const app = express();
@@ -10,8 +10,7 @@ app.use(express.static('../'));
 app.use('/', router)
 
 router.post('/signUp',handleUserSignUp);
-router.post('/adminLogin', handleAdminLogin);
-router.post('/salesLogin', handleSalesLogin);
+router.post('/handleUserLogin', handleUserLogin);
 router.get('/users', users);
 router.get('/deleteUser', deleteUser);
 

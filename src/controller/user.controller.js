@@ -69,7 +69,7 @@ const handleUserSignUp = asyncHandler(async (req, res) => {
     }
 })
 
-const handleAdminLogin = asyncHandler(async (req, res) => {
+const handleUserLogin = asyncHandler(async (req, res) => {
     const { userType, username, password } = req.body;
     
     if(!username || !password) {
@@ -84,47 +84,6 @@ const handleAdminLogin = asyncHandler(async (req, res) => {
         throw new ApiError(401, 'You need to be ' , `${user.userType}`, "to get login");
     }
     const isPasswordValid = await user.isPasswordCorrect(password)
-    if(!isPasswordValid){
-        throw new ApiError(401, "Incorrect password")
-    }
-
-    const { accessToken,refreshToken } = await generateAccessAndRefreshTokens(user._id)
-
-    const loggedInUser = await User.findById(user._id).select( " -password -refreshToken" )
-
-    const options = {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'None',
-    }
-
-    return res.status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(loggedInUser);
-})
-
-const handleSalesLogin = asyncHandler(async (req, res) => {
-    const { userType, username, password } = req.body;
-
-    if (userType !== "sales" ) {
-        throw new ApiError(401, "Only Sales can login");
-    }
-
-    if(!username || !password) {
-        throw new ApiError(400, "Username and password are required");
-    }
-    
-    const user = await User.findOne({ username: username }).select('+password'); // Include the password for comparison
-
-    if (!user) {
-        // User not found
-        throw new ApiError(404, "No such admin")
-    }
-
-    // Compare password (make sure to hash passwords in your user model)
-    const isPasswordValid = await user.isPasswordCorrect(password)
-
     if(!isPasswordValid){
         throw new ApiError(401, "Incorrect password")
     }
@@ -178,8 +137,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 export {
     handleUserSignUp,
-    handleAdminLogin,
-    handleSalesLogin,   
+    handleUserLogin,  
     users,
     deleteUser
 };
