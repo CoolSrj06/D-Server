@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 import { verifyJWT } from "../middleware/auth.js"
-import { handleContactForms, downloadIndustryWiseReports } from "../controller/admin.controller.js";
+import { handleContactForms, downloadIndustryWiseReports, assignFormsToSales, listSalesPerson } from "../controller/admin.controller.js";
 
 const app = express();
 const router = Router();
@@ -14,5 +14,7 @@ router.route('/').post(verifyJWT , (_, res) => {
 });
 router.route('/contactForms').post(verifyJWT, handleContactForms);
 router.route('/downloadIndustryWiseReports').get(verifyJWT, downloadIndustryWiseReports);
+router.route('/assignFormsToSales').post(assignFormsToSales);
+router.route('/listSalesPerson').get(listSalesPerson);
 
 export default router;

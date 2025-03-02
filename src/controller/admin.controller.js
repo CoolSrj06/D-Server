@@ -4,6 +4,7 @@ import {buyReportRequest} from '../model/buyReportForm.model.js';
 import {customReportOrDemoReportRequest} from '../model/customReportOrDemoReportRequest.model.js';
 import {CSVData} from '../model/CSV.model.js';
 import xlsx from "xlsx";
+import { User } from "../model/admin.model.js";
 
 const handleContactForms = asyncHandler(async (req, res) => {
     try {
@@ -39,7 +40,7 @@ const handleContactForms = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'Form not found' });
         }
 
-        const totalDocuments = await form.length; // Count total documents
+        const totalDocuments = form.length; // Count total documents
 
         res.status(200).json({ 
             page,
@@ -108,7 +109,57 @@ const downloadIndustryWiseReports = asyncHandler(async (req, res) => {
     }
 });
 
+const assignFormsToSales =  asyncHandler(async (req, res) => {
+    try {
+        const { formId, _id,  salesPersonId } = req.body;
+        if (!formId || !salesPersonId || !_id) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        let form;
+        switch (formId) {
+            case 'ContactForm123':
+                form = await ContactUsForm.findOneAndUpdate({ _id }, { $set: { assignedTo: salesPersonId } }, { new: true });
+                break;
+            case 'BuyForm123':
+                form = await buyReportRequest.findOneAndUpdate({ _id }, { $set: { assignedTo: salesPersonId } }, { new: true });
+                break;
+            case 'CustomizeForm123':
+                form = await customReportOrDemoReportRequest.findOneAndUpdate({ _id }, { $set: { assignedTo: salesPersonId } }, { new: true });
+                break;
+            case 'DemoForm123':
+                form = await customReportOrDemoReportRequest.findOneAndUpdate({ _id }, { $set: { assignedTo: salesPersonId } }, { new: true });
+                break;
+            default:
+                return res.status(400).json({ message: 'Invalid form ID' });
+        }
+        
+        if (!form) {
+            return res.status(404).json({ message: 'Form not found' });
+        }
+        
+        res.status(200).json({ message: 'Form assigned successfully'});
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error assigning form' });
+    }
+});
+    
+const listSalesPerson = asyncHandler(async (req, res) => {
+    try {
+        const salesPersons = await User.find({ userType: 'sales' }).select(' fullName _id');
+        res.json({ data: salesPersons });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching sales persons' });
+    }
+});
+
 export {
     handleContactForms,
-    downloadIndustryWiseReports
+    downloadIndustryWiseReports,
+    assignFormsToSales,
+    listSalesPerson
 }

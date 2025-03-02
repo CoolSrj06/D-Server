@@ -86,7 +86,13 @@ const buyReportFormSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Form ID is required'],
         trim: true,
-    }
+    },
+    assignedTo: {
+        // type should be the id of sales user
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null,
+    },
 }, { timestamps: true });
 
 export const buyReportRequest =  mongoose.model('buyReportRequest', buyReportFormSchema);
