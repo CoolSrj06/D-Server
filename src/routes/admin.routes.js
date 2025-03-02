@@ -9,8 +9,9 @@ const router = Router();
 app.use(express.static('../'));
 app.use('/admin', router)
 
-// Contact form data from frontend and send to mongodb storage
-router.route('/').post(verifyJWT)
+router.route('/').post(verifyJWT , (_, res) => {
+    res.status(200).json({ message: "Verified successfully" })
+});
 router.route('/contactForms').post(handleContactForms);
 router.route('/downloadIndustryWiseReports').get(downloadIndustryWiseReports);
 

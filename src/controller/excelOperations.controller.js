@@ -137,7 +137,35 @@ const pushCSVData = asyncHandler(async (req, res) => {
 
 })
 
+const paginatedCSVData = asyncHandler(async (req, res) => {
+    try {
+        const industryID = req.query.industryID;
+        const page = parseInt(req.query.page) || 1; 
+        const limit = parseInt(req.query.limit) || 10; 
+        
+        const startIndex = (page - 1) * limit;
+
+        const filter = industryID ? { "Industries ID": industryID } : {}; 
+
+        const total = await CSVData.countDocuments(filter); 
+        
+        const products = await CSVData.find( filter, { Date : 1,'Report Title' : 1,'Industry' : 1, 'Forecast Period': 1, 'CAGR (%)' : 1, 'Market Size - 2025 (USD Billion)' : 1, 'Market Size - 2032 (USD Billion)' : 1,'Report ID' : 1, _id: 0 })
+            .limit(limit) 
+            .skip(startIndex) 
+        
+        res.json({
+            page,
+            total,
+            totalPages: Math.ceil(total / limit),
+            data: products
+        });
+    }catch{
+        res.status(500).json({ message: "Error fetching data" });
+    }
+})
+
 export {
     uploadExcelSurveyData,
-    pushCSVData
+    pushCSVData,
+    paginatedCSVData
 }

@@ -8,7 +8,6 @@ const router = Router();
 app.use(express.static('../'));
 app.use('/', router)
 
-// Contact form data from frontend and send to mongodb storage
 router.route('/contactUs').post(handleContactUsForm);
 router.route('/customReport').post(handleCustomReportOrDemoReportRequest);
 router.route('/buyReport').post(handleBuyReportForm);
