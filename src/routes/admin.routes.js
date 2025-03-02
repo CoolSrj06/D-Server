@@ -12,7 +12,7 @@ app.use('/admin', router)
 router.route('/').post(verifyJWT , (_, res) => {
     res.status(200).json({ message: "Verified successfully" })
 });
-router.route('/contactForms').post(handleContactForms);
-router.route('/downloadIndustryWiseReports').get(downloadIndustryWiseReports);
+router.route('/contactForms').post(verifyJWT, handleContactForms);
+router.route('/downloadIndustryWiseReports').get(verifyJWT, downloadIndustryWiseReports);
 
 export default router;

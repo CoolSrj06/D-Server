@@ -71,31 +71,19 @@ const handleUserSignUp = asyncHandler(async (req, res) => {
 
 const handleAdminLogin = asyncHandler(async (req, res) => {
     const { userType, username, password } = req.body;
-
-    //console.log(userType, username, password);
     
-    if (userType !== 'admin' ) {
-        throw new ApiError(401, "Only Admin can login");
-    }
-
     if(!username || !password) {
         throw new ApiError(400, "Username and password are required");
     }
-    
-    const user = await User.findOne({ username: username }).select('+password'); // Include the password for comparison
-
+    const user = await User.findOne({ username: username }).select('+password'); 
     if (!user) {
-        // User not found
         throw new ApiError(404, "No such admin")
     }
-
-    // Compare password (make sure to hash passwords in your user model)
-    //console.log(password, "password");
-    
+     
+    if(user.userType !== userType) {
+        throw new ApiError(401, 'You need to be ' , `${user.userType}`, "to get login");
+    }
     const isPasswordValid = await user.isPasswordCorrect(password)
-
-    //console.log(isPasswordValid);
-    
     if(!isPasswordValid){
         throw new ApiError(401, "Incorrect password")
     }
