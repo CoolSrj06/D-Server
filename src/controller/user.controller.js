@@ -81,7 +81,7 @@ const handleUserLogin = asyncHandler(async (req, res) => {
     }
      
     if(user.userType !== userType) {
-        throw new ApiError(401, `You need to be  ${user.userType} to get login`);
+        throw new ApiError(401, `You are a ${user.userType}`);
     }
     const isPasswordValid = await user.isPasswordCorrect(password)
     if(!isPasswordValid){
