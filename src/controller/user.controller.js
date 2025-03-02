@@ -1,8 +1,5 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
-import { Survey } from '../model/survey.model.js'
-import { ApiResponse } from "../utils/ApiResponse.js";
-import xlsx from "xlsx";
 import { User } from "../model/admin.model.js";
 import { CSVData } from "../model/CSV.model.js";
 
@@ -20,67 +17,6 @@ const generateAccessAndRefreshTokens = (async(userId) => {
     } catch (err) {
         throw new ApiError(500, "Something went wrong while generating access and refresh tokens")
     }
-})
-
-const downloadSurveyData = asyncHandler(async (req, res) => {
-    let survey = [];
-    const surveyData = await Survey.find({});
-
-    // Step 2: Flatten the data based on surveyFormData presence
-    surveyData.forEach((sample) => {
-        const { surveyName, description, link, surveyFormData } = sample;
-
-        // If surveyFormData has entries, repeat surveyName, description, link for each formEntry
-        if (surveyFormData && surveyFormData.length > 0) {
-            surveyFormData.forEach((formEntry) => {
-                survey.push({
-                    surveyName,
-                    description,
-                    link,
-                    name: formEntry.name, // Name from surveyFormData
-                    email: formEntry.email, // Email from surveyFormData
-                    message: formEntry.message, // Message from surveyFormData
-                });
-            });
-        } else {
-            // If surveyFormData is empty, still push the surveyName, description, and link
-            survey.push({
-                surveyName,
-                description,
-                link,
-                name: "", // Empty value for name when surveyFormData is empty
-                email: "", // Empty value for email when surveyFormData is empty
-                message: "", // Empty value for message when surveyFormData is empty
-            });
-        }
-    });
-
-
-    //console.log(survey); // Debugging: Check the collected data
-    
-    // Step 3: Add headings and convert data to Excel sheet
-    const heading = ["Survey Name", "Description", "Link", "Name", "Email", "Message"]; // Add the relevant field names
-    const dataWithHeading = [heading, ...survey.map(item => [
-    item.surveyName, 
-    item.description, 
-    item.link, 
-    item.name,  // Name from surveyFormData
-    item.email, // Email from surveyFormData
-    item.message // Message from surveyFormData
-    ])];
- 
-
-    const worksheet = xlsx.utils.aoa_to_sheet(dataWithHeading); // Converts array of arrays to a worksheet
-    const workbook = xlsx.utils.book_new(); // Creates a new workbook
-    xlsx.utils.book_append_sheet(workbook, worksheet, "SurveyData"); // Adds the worksheet to the workbook
-
-    // Step 4: Write the workbook to a buffer
-    const excelBuffer = xlsx.write(workbook, { type: "buffer", bookType: "xlsx" });
-
-    // Step 5: Send the Excel file as a response
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", "attachment; filename=survey-data.xlsx");
-    res.send(excelBuffer);
 })
 
 const handleUserSignUp = asyncHandler(async (req, res) => {
@@ -273,7 +209,6 @@ const handleReport = asyncHandler(async (req, res) => {
 })
 
 export {
-    downloadSurveyData,
     handleUserSignUp,
     handleAdminLogin,
     handleSalesLogin,  

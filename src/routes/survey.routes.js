@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 
-import { postSurvey, postSurveyForm, sendSurveyFormData, displaySurveys } from "../controller/survey.controller.js";
+import { postSurvey, postSurveyForm, sendSurveyFormData, displaySurveys, downloadSurveyData } from "../controller/survey.controller.js";
 
 const app = express();
 const router = Router();
@@ -13,5 +13,6 @@ router.route('/postSurvey').post(postSurvey);
 router.route('/sendSurveyFormData').post(sendSurveyFormData);
 router.route('/displaySurveys').get(displaySurveys);
 router.route('/postSurveyForm').post(postSurveyForm);
+router.route('/downloadSurveyData').get(downloadSurveyData);
 
 export default router;

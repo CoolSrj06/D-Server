@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Survey } from '../model/survey.model.js';
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {ApiError} from "../utils/ApiError.js"
+import xlsx from "xlsx";
 
 const postSurvey = asyncHandler(async(req,res) => {
     try{
@@ -27,9 +28,6 @@ const postSurvey = asyncHandler(async(req,res) => {
         );
 
         return res.status(201)
-            .json(
-                new ApiResponse(201, surveyDetail, "Query posted successfully")
-            );
     } catch (error) {
         console.error("Error in postDoubt:", error);
         throw error; // AsyncHandler will catch and return the error
@@ -150,9 +148,80 @@ const displaySurveys = asyncHandler(async(req,res) => {
     }
 });
 
+const downloadSurveyData = asyncHandler(async (req, res) => {
+    const { surveyId } = req.query;
+    let survey = [];
+    const surveyData = await Survey.findById(surveyId);
+
+    if (!surveyData) {
+        return res.status(404).json({ message: "Survey not found" });
+    }
+
+    // Extract data from survey
+    const { surveyName, description, link, surveyFormData } = surveyData;
+
+    // If surveyFormData exists, iterate and extract required fields
+    if (surveyFormData && surveyFormData.length > 0) {
+        surveyFormData.forEach((formEntry) => {
+            survey.push({
+                surveyName,
+                description,
+                link,
+                firstName: formEntry.firstName || "",
+                lastName: formEntry.lastName || "",
+                email: formEntry.email || "",
+                phone: formEntry.phone || "",
+                jobTitle: formEntry.jobTitle || "",
+                companyName: formEntry.companyName || "",
+                subject: formEntry.subject || "",
+                message: formEntry.message || "",
+            });
+        });
+    } else {
+        // If no form data, push an empty record with just the survey details
+        survey.push({
+            surveyName,
+            description,
+            link,
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            jobTitle: "",
+            companyName: "",
+            subject: "",
+            message: "",
+        });
+    }
+
+    // Define Excel headers
+    const heading = [
+        "Survey Name", "Description", "Link", "First Name", "Last Name",
+        "Email", "Phone", "Job Title", "Company Name", "Subject", "Message"
+    ];
+
+    // Convert to Excel format
+    const dataWithHeading = [heading, ...survey.map(item => [
+        item.surveyName, item.description, item.link, item.firstName, item.lastName,
+        item.email, item.phone, item.jobTitle, item.companyName, item.subject, item.message
+    ])];
+
+    const worksheet = xlsx.utils.aoa_to_sheet(dataWithHeading);
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, "SurveyData");
+
+    // Generate Excel buffer and send response
+    const excelBuffer = xlsx.write(workbook, { type: "buffer", bookType: "xlsx" });
+    
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", "attachment; filename=survey-data.xlsx");
+    res.send(excelBuffer);
+});
+
 export {
     postSurvey,
     postSurveyForm,
     sendSurveyFormData,
-    displaySurveys
+    displaySurveys,
+    downloadSurveyData
 }

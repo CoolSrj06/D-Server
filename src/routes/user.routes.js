@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { downloadSurveyData, paginatedCSVData, handleReport,
+import { paginatedCSVData, handleReport,
      handleAdminLogin, handleUserSignUp, handleSalesLogin } from "../controller/user.controller.js";
 //import { verifyJWT } from "../middleware/auth.js"
 
@@ -16,9 +16,6 @@ router.post('/signUp',handleUserSignUp);
 // Admin and Sales Login
 router.post('/adminLogin', handleAdminLogin);
 router.post('/salesLogin', handleSalesLogin);
-
-// download survey data from mongodb storage
-router.route('/downloadSurveyData').get(downloadSurveyData);
 
 // paginated CSV data from mongodb storage to frontend
 router.route('/paginatedCSVData').get(paginatedCSVData);
