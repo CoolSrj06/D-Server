@@ -1,7 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { User } from "../model/admin.model.js";
-import { CSVData } from "../model/CSV.model.js";
 
 const generateAccessAndRefreshTokens = (async(userId) => {
     try {
@@ -158,25 +157,41 @@ const handleSalesLogin = asyncHandler(async (req, res) => {
     .json(loggedInUser);
 })
 
-const handleReport = asyncHandler(async (req, res) => {
+const users = asyncHandler(async (req, res) => {
     try {
-        const reportId = req.query.reportId;        
-        const report = await CSVData.findOne({ "Report ID": reportId });
-        //console.log(report);
-        if (!report) {
-            return res.status(404).json({ message: "Report not found" });
-        }
-        res.json(report);
-    }
-    catch (error) {
+        // Fetch users excluding those with userType 'admin'
+        const users = await User.find({ userType: { $ne: "admin" } })
+            .select("fullName userType _id");
+
+        res.json(users);
+    } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error fetching report" });
-    }   
-})
+        res.status(500).json({ message: "Error fetching users", error: error.message });
+    }
+});
+
+
+const deleteUser = asyncHandler(async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await User
+            .findByIdAndDelete(userId)
+            .select("fullName userType _id");
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error deleting user", error: error.message });
+    }
+});
 
 export {
     handleUserSignUp,
     handleAdminLogin,
-    handleSalesLogin,    
-    handleReport,
+    handleSalesLogin,   
+    users,
+    deleteUser
 };
