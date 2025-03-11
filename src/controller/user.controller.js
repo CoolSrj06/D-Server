@@ -20,14 +20,15 @@ const generateAccessAndRefreshTokens = (async(userId) => {
 
 const handleUserSignUp = asyncHandler(async (req, res) => {
     const { fullName, username, password, userType } = req.body;
-
-    console.log(fullName, username, password, userType);
-    
     
     if ([fullName, userType, username, password].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required");
     }
     
+    if(userType=== "admin") {
+        throw new ApiError(401, "You are not authorized to create an admin account")
+    }
+
     const existedUser = await User.findOne({
         $or: [{ username }]
     });
@@ -35,8 +36,6 @@ const handleUserSignUp = asyncHandler(async (req, res) => {
     if (existedUser) {
         throw new ApiError(409, "User with email or username already exists");
     }
-    
-    //console.log(existedUser);
     
     try {
         const user = await User.create({
