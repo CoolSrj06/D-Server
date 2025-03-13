@@ -118,28 +118,33 @@ const users = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async(req, res) => {
-    User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $unset: {
-                refreshToken: 1,
+    try{
+        User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $unset: {
+                    refreshToken: 1,
+                }
+            },
+            {
+                new: true
             }
-        },
-        {
-            new: true
+        )
+
+        const options = {
+            httpOnly: true,
+            secure: true
         }
-    )
 
-    const options = {
-        httpOnly: true,
-        secure: true
+        return res
+        .status(200)
+        .cookie("refreshToken", options)
+        .cookie("accessToken", options)
+        .json( new ApiResponse(200, {} , "User logged out successfully"))
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error logging out user", error: error.message });
     }
-
-    return res
-    .status(200)
-    .cookie("refreshToken", options)
-    .cookie("accessToken", options)
-    .json( new ApiResponse(200, {} , "User logged out successfully"))
 })
 
 const deleteUser = asyncHandler(async (req, res) => {
