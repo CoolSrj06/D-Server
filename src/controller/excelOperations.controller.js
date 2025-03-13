@@ -10,12 +10,10 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
             return res.status(400).json({ message: "No file uploaded" });
         }
 
-        // Read the uploaded Excel file
         const workbook = xlsx.readFile(req.file.path);
-        const sheetName = workbook.SheetNames[0]; // Get first sheet
+        const sheetName = workbook.SheetNames[0]; 
         const sheet = workbook.Sheets[sheetName];
 
-        // Convert sheet to JSON with raw=false to handle dates properly
         const rawData = xlsx.utils.sheet_to_json(sheet, { header: 1, raw: false });
 
         if (rawData.length < 2) {
@@ -31,34 +29,30 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
             "Key Global Market Players"
         ];
 
-        // Extract headers from the first row
         const headers = rawData[0];
 
-        // Function to convert Excel serial date to standard date format
         const convertExcelDate = (serial) => {
-            if (!serial || isNaN(serial)) return serial; // Return as-is if not a valid serial
+            if (!serial || isNaN(serial)) return serial; 
             const excelDate = new Date((serial - 25569) * 86400000);
-            return excelDate.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+            return excelDate.toISOString().split("T")[0]; 
         };
 
-        // Extract data from second row onward
         jsonData = rawData.slice(1).map(row => {
             let rowData = {};
             finalHeaders.forEach((header, index) => {
-                if (header && row[index] !== undefined) { // Exclude empty columns
+                if (header && row[index] !== undefined) { 
                     rowData[header] = header === "Date" ? convertExcelDate(row[index]) : row[index];
                 }
             });
-            // Only return rowData if it's not empty
+        
             if (Object.keys(rowData).length > 0) {
                 return rowData;
             }
 
-            // If the rowData is empty, return nothing (i.e., skip this row)
             return null;
-        }).filter(row => row !== null); // Remove null values (empty rows)
+        }).filter(row => row !== null); 
 
-        // Delete the file after processing
+        
         fs.unlink(req.file.path, (err) => {
             if (err) console.error("Error deleting file:", err);
         });
@@ -76,9 +70,7 @@ const uploadExcelSurveyData = asyncHandler(async (req, res) => {
 
 const pushCSVData = asyncHandler(async (req, res) => {
     try {
-        const { approved } = req.body; // The approval flag is sent in the request body
-
-        //console.log(jsonData);
+        const { approved } = req.body;
         
         if (jsonData===null) {
             return res.status(400).json({ message: "No data to approve. Please upload a file first." });
@@ -92,28 +84,26 @@ const pushCSVData = asyncHandler(async (req, res) => {
             return res.status(400).json({ message: "No data to upload." });
         }
         
-        // Validate each record before inserting
         const invalidEntries = [];
         const bulkOps = [];
 
         for (let i = 0; i < jsonData.length; i++) {
             const data = new CSVData(jsonData[i]);
-            const validationError = data.validateSync(); // Validate without saving
+            const validationError = data.validateSync(); 
             
             if (validationError) {
                 invalidEntries.push({ id: i, errors: validationError.errors });
             } else {
                 bulkOps.push({
                     updateOne: {
-                        filter: { "Report ID": jsonData[i]['Report ID'] }, // Check by unique Report ID
-                        update: { $set: jsonData[i] }, // Replace the existing document
-                        upsert: true // Insert if it doesn't exist
+                        filter: { "Report ID": jsonData[i]['Report ID'] }, 
+                        update: { $set: jsonData[i] }, 
+                        upsert: true
                     }
                 });
             }
         }
 
-        // If any data is invalid, return errors and do not insert anything
         if (invalidEntries.length > 0) {
             return res.status(400).json({
                 message: "Some records are invalid. No data was pushed.",
@@ -121,11 +111,8 @@ const pushCSVData = asyncHandler(async (req, res) => {
             });
         }
         
-        // Perform bulk update/insert operation
         await CSVData.bulkWrite(bulkOps);
 
-
-        // Clear stored data after successful save
         jsonData = null;
 
         res.status(200).json({ message: "Data successfully pushed to the database" });
@@ -168,7 +155,6 @@ const handleReport = asyncHandler(async (req, res) => {
     try {
         const reportId = req.query.reportId;        
         const report = await CSVData.findOne({ "Report ID": reportId });
-        //console.log(report);
         if (!report) {
             return res.status(404).json({ message: "Report not found" });
         }
@@ -180,9 +166,31 @@ const handleReport = asyncHandler(async (req, res) => {
     }   
 })
 
+const search = asyncHandler(async (req, res) => {
+    try {
+        const searchQuery = req.query.search;
+        if (!searchQuery) {
+            return res.status(400).json({ message: "Search query is required" });
+        }
+
+        const reports =await CSVData.find(
+            { 'Report Title': { $regex: searchQuery, $options: 'i' }},
+            { _id: 1, 'Report Title': 1 }
+        )
+        .sort({ 'Report Title': 1 })
+        .limit(10);
+
+        res.json(reports);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error searching for reports", error: error.message });
+    }
+});
+
 export {
     uploadExcelSurveyData,
     pushCSVData,
     paginatedCSVData,
-    handleReport
+    handleReport,
+    search
 }

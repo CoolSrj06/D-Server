@@ -2,7 +2,6 @@ import { ApiError } from '../utils/ApiError.js'
 
 export const errorHandler = (err, req, res, next) => {
     console.error("Error in errorHandler:", err);
-    // Check if the error is an instance of ApiError
     if (err instanceof ApiError) {
         return res.status(err.statusCode).json({
             success: false,
@@ -11,7 +10,6 @@ export const errorHandler = (err, req, res, next) => {
         });
     }
 
-    // For other errors, return a generic response
     return res.status(500).json({
         success: false,
         message: "Internal Server Error",

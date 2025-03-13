@@ -6,10 +6,10 @@ import {customReportOrDemoReportRequest} from '../model/customReportOrDemoReport
 const handleContactForms = asyncHandler(async (req, res) => {
     try {
         const { formId } = req.body;
-        const page = parseInt(req.query.page) || 1; // Get page number from query parameters
-        const limit = parseInt(req.query.limit) || 10; // Get limit from query parameters
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
 
-        const startIndex = (page - 1) * limit; // Calculate start index
+        const startIndex = (page - 1) * limit; 
 
         if (!formId) {
             return res.status(400).json({ message: 'Form ID is missing' });
@@ -37,7 +37,6 @@ const handleContactForms = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'Form not found' });
         }
 
-        // Mask email addresses before sending response
         const maskedForm = form.map(entry => {
             if (entry.email) {
                 const [localPart, domain] = entry.email.split('@');
@@ -47,14 +46,14 @@ const handleContactForms = asyncHandler(async (req, res) => {
             return entry;
         });
 
-        const totalDocuments = form.length; // Count total documents
+        const totalDocuments = form.length; 
 
         res.status(200).json({ 
             page,
             limit,
             totalDocuments,
-            totalPages: Math.ceil(totalDocuments / limit),  // Calculate total pages
-            form: maskedForm, // Return masked emails
+            totalPages: Math.ceil(totalDocuments / limit),  
+            form: maskedForm, 
         });
     } catch (error) {
         console.error(error);
@@ -92,7 +91,6 @@ const tasksAssignedToMe = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'No tasks assigned to the user' });
         }
 
-        // Mask email addresses before sending response
         const maskedForm = form.map(entry => {
             if (entry.email) {
                 const [localPart, domain] = entry.email.split('@');

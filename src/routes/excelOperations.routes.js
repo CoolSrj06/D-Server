@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { handleReport, uploadExcelSurveyData, pushCSVData, paginatedCSVData } from "../controller/excelOperations.controller.js";
+import { handleReport, uploadExcelSurveyData, pushCSVData, paginatedCSVData, search } from "../controller/excelOperations.controller.js";
 //import { handleContactForm } from "../controller/contacts.controller.js";
 import { verifyJWT } from "../middleware/auth.js"
 import {upload} from "../middleware/multer.middleware.js"
@@ -15,5 +15,6 @@ router.route('/upload').post(verifyJWT, upload.single('file'),uploadExcelSurveyD
 router.route('/pushCSVData').post(verifyJWT, pushCSVData);
 router.route('/paginatedCSVData').get(paginatedCSVData);
 router.route('/handleReport').get(handleReport);
+router.get('/search', search)
 
 export default router

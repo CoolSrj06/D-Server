@@ -51,9 +51,6 @@ const upsertKeyStatistics = asyncHandler(async (req, res) => {
         res.status(500).json({ message: "Error processing Key Statistics", error: error.message });
     }
 });
-
-
-// Fetch Key Statictics
 const getKeyStatictics = asyncHandler(async (req, res) => {
     try {
         const keyStatistics = await KeyStatictics.findOne({});

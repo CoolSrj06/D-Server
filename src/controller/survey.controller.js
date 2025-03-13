@@ -12,7 +12,6 @@ const postSurvey = asyncHandler(async(req,res) => {
             throw new ApiError(400, "Survey Link and Description fields are required");
         }
 
-        // Create the new query
         let surveyDetail = await Survey.create({
             surveyName,
             description,
@@ -30,7 +29,7 @@ const postSurvey = asyncHandler(async(req,res) => {
         return res.status(201)
     } catch (error) {
         console.error("Error in postDoubt:", error);
-        throw error; // AsyncHandler will catch and return the error
+        throw error; 
     }
 });
 
@@ -43,17 +42,15 @@ const postSurveyForm = asyncHandler(async(req,res,next) => {
             throw new ApiError(400, "All feilds are required fields are required");
         }
 
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({ message: "Invalid email format" });
         }
 
-        // Check for duplicate survey response
         const existingSurveyResponse = await Survey.findOne({
             surveyFormData: {
                 $elemMatch: { 
-                    email: email.trim(), // Ensure no leading/trailing spaces
+                    email: email.trim(),
                     firstName: firstName.trim(),
                     lastName: lastName.trim(),
                     message: message.trim(),
@@ -68,7 +65,7 @@ const postSurveyForm = asyncHandler(async(req,res,next) => {
         if (existingSurveyResponse) {
             return next(new ApiError(404, "Survey Detail not found"));
         }
-        //Create a new answer object
+        
         const newSurvey = {
             firstName: firstName.trim(),
             lastName: lastName.trim(),
@@ -80,22 +77,19 @@ const postSurveyForm = asyncHandler(async(req,res,next) => {
             message: message.trim(),
         };
         
-        // Find the surveyDetail by ID and update it
+        
         const surveyDetail = await Survey.findById(surveyId);
     
         if (!surveyDetail) {
             return next(new ApiError(404, "Survey Detail not found"));
         }
         
-        // Add the new answer to the answers array
         surveyDetail.surveyFormData.push(newSurvey);
         const updatedSurvey = await surveyDetail.save();
     
-        // Return the updated query
         res.status(201).json(updatedSurvey);
     } catch (error) {
         console.error("Error submitting surveyForm:", error);
-        // General error handling
         next(error); 
     }
 });
@@ -108,7 +102,6 @@ const sendSurveyFormData = asyncHandler(async(req,res) => {
             throw new ApiError(400, "Survey ID is required");
         }
         
-        // Find the surveyDetail by ID and send response
         const surveyDetail = await Survey.findById(surveyId).select("surveyName description");
 
         if (!surveyDetail) {
@@ -168,11 +161,8 @@ const downloadSurveyData = asyncHandler(async (req, res) => {
     if (!surveyData) {
         return res.status(404).json({ message: "Survey not found" });
     }
-
-    // Extract data from survey
     const { surveyName, description, link, surveyFormData } = surveyData;
 
-    // If surveyFormData exists, iterate and extract required fields
     if (surveyFormData && surveyFormData.length > 0) {
         surveyFormData.forEach((formEntry) => {
             survey.push({
@@ -190,7 +180,6 @@ const downloadSurveyData = asyncHandler(async (req, res) => {
             });
         });
     } else {
-        // If no form data, push an empty record with just the survey details
         survey.push({
             surveyName,
             description,
@@ -206,13 +195,11 @@ const downloadSurveyData = asyncHandler(async (req, res) => {
         });
     }
 
-    // Define Excel headers
     const heading = [
         "Survey Name", "Description", "Link", "First Name", "Last Name",
         "Email", "Phone", "Job Title", "Company Name", "Subject", "Message"
     ];
 
-    // Convert to Excel format
     const dataWithHeading = [heading, ...survey.map(item => [
         item.surveyName, item.description, item.link, item.firstName, item.lastName,
         item.email, item.phone, item.jobTitle, item.companyName, item.subject, item.message
@@ -222,7 +209,6 @@ const downloadSurveyData = asyncHandler(async (req, res) => {
     const workbook = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(workbook, worksheet, "SurveyData");
 
-    // Generate Excel buffer and send response
     const excelBuffer = xlsx.write(workbook, { type: "buffer", bookType: "xlsx" });
     
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

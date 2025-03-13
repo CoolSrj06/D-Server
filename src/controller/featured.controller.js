@@ -52,7 +52,6 @@ const setFeatured = asyncHandler(async (req, res) => {
 
 const featuredReports = asyncHandler(async (req, res) => {
     try {
-        // Use select({ "Report Title": 1 }) instead of select("Report Title") to ensure Mongoose treats it as a single field.
         const featuredReports = await CSVData.find({ "Featured": true }).select({"Report ID": 1});
         res.json({ data: featuredReports });
     } catch (error) {

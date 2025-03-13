@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         minlength: [6, 'Password must be at least 6 characters long'],
-        select: false // Do not return password by default
+        select: false 
     },
     userType: {
         type: String,
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     },
     refreshToken: {
         type: String,
-        select: false // Do not return refresh token by default
+        select: false
     },
 }, {timestamps: true});
 
@@ -54,7 +54,6 @@ userSchema.methods.generateAccessToken = function(){
     )
 }
 
-// Refresh token expire in long duration
 userSchema.methods.generateRefreshToken = function(){
     return jwt.sign(
         {
