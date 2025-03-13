@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { User } from "../model/admin.model.js";
+import { CSVData } from "../model/CSV.model.js";
 
 const generateAccessAndRefreshTokens = (async(userId) => {
     try {
@@ -158,10 +159,31 @@ const deleteUser = asyncHandler(async (req, res) => {
     }
 });
 
+const search = asyncHandler(async (req, res) => {
+    try {
+        const searchQuery = req.query.search;
+        if (!searchQuery) {
+            return res.status(400).json({ message: "Search query is required" });
+        }
+
+        const reports =await CSVData.find(
+            { 'Report Title': { $regex: searchQuery, $options: 'i' }},
+            { _id: 1, 'Report Title': 1 }
+        );
+
+        res.json(reports);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error searching for reports", error: error.message });
+    }
+});
+
+
 export {
     handleUserSignUp,
     handleUserLogin,  
     users,
     deleteUser,
-    logoutUser
+    logoutUser,
+    search
 };

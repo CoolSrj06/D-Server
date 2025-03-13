@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js"
 import jwt from "jsonwebtoken";
 import { User } from "../model/admin.model.js"
 
-export const verifyJWT = asyncHandler(async(req, _ , next) => { // inplace of res we can use ' _ '
+export const verifyJWT = asyncHandler(async(req, _ , next) => {
     try {
         const token = req.cookies?.accessToken ||  req.header("Authorization")?.replace("Bearer ", "")
         
@@ -24,11 +24,3 @@ export const verifyJWT = asyncHandler(async(req, _ , next) => { // inplace of re
         throw new ApiError(401, error?.message || "Invalid Access Token")  
     }
 })
-
-// export const validateApiKey  = asyncHandler(async(req, res, next) => {
-//     const apiKey = req.header("x-api-key")
-//     if(!apiKey || apiKey !== process.env.API_KEY) {
-//         throw new ApiError(403, "Forbidden", ["Invalid API Key"])
-//     }
-//     next();
-// })
