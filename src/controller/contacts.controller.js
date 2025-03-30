@@ -93,8 +93,44 @@ const handleCustomReportOrDemoReportRequest = asyncHandler(async (req, res) => {
     }
 });
 
+const deleteForms = asyncHandler(async (req, res) => {
+    try {
+        // recieive formId from the request body and object _id and remove from the database, also retrieve userType from the jwt token
+        const { formId, _id } = req.body;
+        if (!formId ||!_id) {
+            return res.status(400).json({ message: "Invalid request: Form ID and object ID are required" });
+        }
+        const userType = req.user.userType;
+        if (userType !== 'admin') {
+            return res.status(403).json({ message: "Access denied" });
+        }
+        let form;
+        switch (formId) {
+            case 'ContactForm123':
+                form = await ContactUsForm.findOneAndDelete({ _id });
+                break;
+            case 'BuyForm123':
+                form = await buyReportRequest.findOneAndDelete({ _id });
+                break;
+            case 'CustomReportForm123':
+                form = await customReportOrDemoReportRequest.findOneAndDelete({ _id });
+                break;
+            default:
+                return res.status(400).json({ message: "Invalid form ID" });
+        }
+        if (!form) {
+            return res.status(404).json({ message: "Form not found" });
+        }
+        res.status(200).json({ message: "Form deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error deleting form", error: error.message });
+    }
+});
+
 export {
     handleContactUsForm,
     handleCustomReportOrDemoReportRequest,
-    handleBuyReportForm
+    handleBuyReportForm,
+    deleteForms
 }

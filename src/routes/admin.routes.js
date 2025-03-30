@@ -2,6 +2,7 @@ import { Router } from "express";
 import express from "express";
 import { verifyJWT } from "../middleware/auth.js"
 import { handleContactForms, downloadIndustryWiseReports, assignFormsToSales, listSalesPerson, deleteReports } from "../controller/admin.controller.js";
+import { deleteForms } from "../controller/contacts.controller.js";
 
 const app = express();
 const router = Router();
@@ -17,5 +18,6 @@ router.route('/downloadIndustryWiseReports').get(verifyJWT, downloadIndustryWise
 router.route('/assignFormsToSales').post(assignFormsToSales);
 router.route('/listSalesPerson').get(listSalesPerson);
 router.route('/delteReports').post(deleteReports);
+router.route('/deleteForms').post(verifyJWT, deleteForms);
 
 export default router;
