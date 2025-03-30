@@ -157,9 +157,37 @@ const listSalesPerson = asyncHandler(async (req, res) => {
     }
 });
 
+const deleteReports = asyncHandler(async (req, res) => {
+    try {
+        const { ids, userType } = req.body; // Expecting an array of IDs and userType from frontend
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ message: "Invalid request: No IDs provided" });
+        }
+
+        if (userType !== 'admin') {
+            return res.status(403).json({ message: "Unauthorized: Only admin can delete records" });
+        }
+
+        const result = await CSVData.deleteMany({ _id: { $in: ids } });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: "No records found to delete" });
+        }
+
+        return res.status(200).json({
+            message: `${result.deletedCount} record(s) deleted successfully`,
+        });
+    } catch (error) {
+        console.error("Error deleting records:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 export {
     handleContactForms,
     downloadIndustryWiseReports,
     assignFormsToSales,
-    listSalesPerson
+    listSalesPerson,
+    deleteReports
 }
