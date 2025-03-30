@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 
-import { postSurvey, postSurveyForm, sendSurveyFormData, displaySurveys, downloadSurveyData } from "../controller/survey.controller.js";
+import { postSurvey, postSurveyForm, sendSurveyFormData, displaySurveys, downloadSurveyData,deleteSurveys } from "../controller/survey.controller.js";
 import { verifyJWT } from "../middleware/auth.js"
 
 const app = express();
@@ -15,5 +15,6 @@ router.route('/sendSurveyFormData').post(sendSurveyFormData);
 router.route('/displaySurveys').get(verifyJWT,displaySurveys);
 router.route('/postSurveyForm').post(postSurveyForm);
 router.route('/downloadSurveyData').get(verifyJWT, downloadSurveyData);
+router.route('/deleteSurveys').post(verifyJWT, deleteSurveys);
 
 export default router;

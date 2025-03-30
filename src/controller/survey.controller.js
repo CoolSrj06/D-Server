@@ -183,7 +183,40 @@ const displaySurveys = asyncHandler(async (req, res) => {
     }
 });
 
+const deleteSurveys = asyncHandler(async (req, res) => {
+    try {
+        const { ids } = req.body; // Get an array of survey IDs from the request body
+        const { userType, id: userId } = req.user; // Extract user info from request
 
+        // Validate input
+        if (!Array.isArray(ids) || ids.length === 0) {
+            throw new ApiError(400, 'Invalid request. Provide a valid array of survey IDs.');
+        }
+
+        // Find all surveys matching the given IDs
+        const surveys = await Survey.find({ _id: { $in: ids } });
+
+        // If no surveys found
+        if (!surveys.length) {
+            return res.status(404).json({ message: 'No surveys found with the provided IDs.' });
+        }
+
+        // Check permissions: Only allow admin or the creator to delete
+        const surveysToDelete = surveys.filter(survey => survey.createdBy.toString() === userId || userType === 'admin');
+
+        if (surveysToDelete.length === 0) {
+            return res.status(403).json({ message: 'Access denied. You can only delete your own surveys.' });
+        }
+
+        // Delete only the surveys that the user is allowed to delete
+        await Survey.deleteMany({ _id: { $in: surveysToDelete.map(s => s._id) } });
+
+        return res.status(200).json({ message: 'Surveys deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting surveys:', error);
+        return res.status(500).json({ message: 'Internal server error', error });
+    }
+});
 
 
 const downloadSurveyData = asyncHandler(async (req, res) => {
@@ -254,5 +287,6 @@ export {
     postSurveyForm,
     sendSurveyFormData,
     displaySurveys,
-    downloadSurveyData
+    downloadSurveyData,
+    deleteSurveys
 }
