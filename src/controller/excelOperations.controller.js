@@ -175,7 +175,8 @@ const search = asyncHandler(async (req, res) => {
 
         const reports =await CSVData.find(
             { 'Report Title': { $regex: searchQuery, $options: 'i' }},
-            { _id: 1, 'Report Title': 1 }
+            { _id: 1, 'Report Title': 1 , 'Industry': 1,
+                'Industries ID': 1}
         )
         .sort({ 'Report Title': 1 })
         .limit(10);

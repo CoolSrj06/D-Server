@@ -3,19 +3,22 @@ import { Survey } from '../model/survey.model.js';
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {ApiError} from "../utils/ApiError.js"
 import xlsx from "xlsx";
+import { User } from "../model/admin.model.js";
 
-const postSurvey = asyncHandler(async(req,res) => {
-    try{
+const postSurvey = asyncHandler(async (req, res) => {
+    try {
         let { surveyName, description, link } = req.body;
+        const userId = req.user.id; // Assuming authentication middleware sets req.user
 
         if (!surveyName?.trim() || !description?.trim() || !link?.trim()) {
-            throw new ApiError(400, "Survey Link and Description fields are required");
+            throw new ApiError(400, "Survey Name, Link, and Description are required");
         }
 
         let surveyDetail = await Survey.create({
             surveyName,
             description,
-            link: link,
+            link,
+            createdBy: userId, // Storing the creator's ID
         });
 
         const updatedLink = `${link}/${surveyDetail._id}`;
@@ -26,12 +29,13 @@ const postSurvey = asyncHandler(async(req,res) => {
             { new: true }
         );
 
-        return res.status(201)
+        return res.status(201).json(surveyDetail);
     } catch (error) {
-        console.error("Error in postDoubt:", error);
-        throw error; 
+        console.error("Error in postSurvey:", error);
+        res.status(500).json({ message: "Internal Server Error", error });
     }
 });
+
 
 const postSurveyForm = asyncHandler(async(req,res,next) => {
     try{
@@ -119,39 +123,68 @@ const sendSurveyFormData = asyncHandler(async(req,res) => {
 
 const displaySurveys = asyncHandler(async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; 
+        const userId = req.user.id; // User ID from authentication
+        const userType = req.user.userType; // Assuming userType is available in req.user
+        const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
+        const startIndex = (page - 1) * limit;
 
-        const startIndex = (page - 1) * limit; 
+        // Define the filter condition
+        const filter = userType === "admin" ? {} : { createdBy: userId };
 
-        const surveys = await Survey.find({})
+        // Fetch surveys
+        const surveys = await Survey.find(filter)
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip(startIndex)
-            .select("surveyName description link createdAt surveyFormData");
+            .select("surveyName description link createdAt surveyFormData createdBy");
 
-        const surveysWithLength = surveys.map(survey => ({
-            _id: survey._id,
-            surveyName: survey.surveyName,
-            description: survey.description,
-            link: survey.link,
-            createdAt: survey.createdAt,
-            surveyFormDataLength: survey.surveyFormData.length, 
-        }));
+        // Fetch all user IDs from the surveys
+        const userIds = [...new Set(surveys.map(survey => survey.createdBy))]; // Unique user IDs
 
-        const total = await Survey.countDocuments(); 
+        // Fetch user details
+        const users = await User.find({ _id: { $in: userIds } }).select("fullName");
+        console.log(users)
+        // Create a map of userId -> fullName
+        const userMap = users.reduce((acc, user) => {
+            acc[user._id] = user.fullName;
+            return acc;
+        }, {});
+
+        // Map surveys to include fullName
+        const surveysWithUsernames = surveys.map(survey => {
+            const surveyData = {
+                _id: survey._id,
+                surveyName: survey.surveyName,
+                description: survey.description,
+                link: survey.link,
+                createdAt: survey.createdAt,
+                surveyFormDataLength: survey.surveyFormData.length,
+            };
+
+            if (userType === "admin") {
+                surveyData.createdBy = userMap[survey.createdBy] || "Unknown"; // Add only for admins
+            }
+
+            return surveyData;
+        });
+
+        const total = await Survey.countDocuments(filter);
 
         res.json({
             total,
             currentPage: page,
             totalPages: Math.ceil(total / limit),
-            surveys: surveysWithLength,
+            surveys: surveysWithUsernames,
         });
     } catch (error) {
         console.error("Error fetching surveys:", error);
-        res.status(500).json({ message: "Internal Server Error", error });
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 });
+
+
+
 
 const downloadSurveyData = asyncHandler(async (req, res) => {
     const { surveyId } = req.query;

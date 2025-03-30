@@ -10,9 +10,9 @@ const router = Router();
 app.use(express.static('../'));
 app.use('/survey', router)
 
-router.route('/postSurvey').post(postSurvey);
+router.route('/postSurvey').post(verifyJWT,postSurvey);
 router.route('/sendSurveyFormData').post(sendSurveyFormData);
-router.route('/displaySurveys').get(displaySurveys);
+router.route('/displaySurveys').get(verifyJWT,displaySurveys);
 router.route('/postSurveyForm').post(postSurveyForm);
 router.route('/downloadSurveyData').get(verifyJWT, downloadSurveyData);
 

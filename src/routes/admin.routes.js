@@ -9,8 +9,8 @@ const router = Router();
 app.use(express.static('../'));
 app.use('/admin', router)
 
-router.route('/').post(verifyJWT , (_, res) => {
-    res.status(200).json({ message: "Verified successfully" })
+router.route('/').post(verifyJWT , (req, res) => {
+    res.status(200).json({ message: "Verified successfully",userRole: req.user?.userType || "No role found" })
 });
 router.route('/contactForms').post(verifyJWT, handleContactForms);
 router.route('/downloadIndustryWiseReports').get(verifyJWT, downloadIndustryWiseReports);

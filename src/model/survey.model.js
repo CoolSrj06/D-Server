@@ -1,12 +1,11 @@
 import mongoose from 'mongoose';
 import { surveyForm } from './surveyForm.model.js'; // Import the answer schema
-const { Schema } = mongoose;
 
-// Schema for doubts
-const survey = new mongoose.Schema({
+// Schema for surveys
+const surveySchema = new mongoose.Schema({
     surveyName: {
         type: String,
-        required: [true, 'survey name is required'],
+        required: [true, 'Survey name is required'],
         trim: true,
     },
     description: {
@@ -19,7 +18,12 @@ const survey = new mongoose.Schema({
         default: '',  // Default to an empty string
     },
     surveyFormData: [surveyForm], // Embeds multiple answers
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", // Reference to the User model
+        required: true // Ensure it's always set
+    }
 }, { timestamps: true });
 
 // Create the Survey model from the schema
-export const Survey = mongoose.model('Survey', survey);
+export const Survey = mongoose.model('Survey', surveySchema);
