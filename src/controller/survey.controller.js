@@ -185,33 +185,27 @@ const displaySurveys = asyncHandler(async (req, res) => {
 
 const deleteSurveys = asyncHandler(async (req, res) => {
     try {
-        const { ids } = req.body; // Get an array of survey IDs from the request body
-        const { userType, id: userId } = req.user; // Extract user info from request
-
-        // Validate input
-        if (!Array.isArray(ids) || ids.length === 0) {
-            throw new ApiError(400, 'Invalid request. Provide a valid array of survey IDs.');
+        // recieve id from req.body, extract userType from userType and delete a perticular servey report
+        const { surveyId } = req.body;
+        const userType = req.user.userType;
+        if (!surveyId) {
+            return res.status(400).json({ message: "Survey ID is required" });
         }
 
-        // Find all surveys matching the given IDs
-        const surveys = await Survey.find({ _id: { $in: ids } });
-
-        // If no surveys found
-        if (!surveys.length) {
-            return res.status(404).json({ message: 'No surveys found with the provided IDs.' });
+        // Check if the user is an admin
+        if (userType!== "admin") {
+            return res.status(403).json({ message: "Only admins can delete surveys" });
         }
 
-        // Check permissions: Only allow admin or the creator to delete
-        const surveysToDelete = surveys.filter(survey => survey.createdBy.toString() === userId || userType === 'admin');
-
-        if (surveysToDelete.length === 0) {
-            return res.status(403).json({ message: 'Access denied. You can only delete your own surveys.' });
+        // Delete the survey
+        await Survey.findByIdAndDelete(surveyId);
+        
+        // Check if the survey was found and deleted
+        const deletedSurvey = await Survey.findById(surveyId);
+        if (!deletedSurvey) {
+            return res.status(200).json({ message: 'Survey deleted successfully.' });
         }
-
-        // Delete only the surveys that the user is allowed to delete
-        await Survey.deleteMany({ _id: { $in: surveysToDelete.map(s => s._id) } });
-
-        return res.status(200).json({ message: 'Surveys deleted successfully.' });
+        return res.status(200).json({ message: 'Survey deleted successfully.' });
     } catch (error) {
         console.error('Error deleting surveys:', error);
         return res.status(500).json({ message: 'Internal server error', error });

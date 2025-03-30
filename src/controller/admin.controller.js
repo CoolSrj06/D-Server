@@ -158,8 +158,10 @@ const listSalesPerson = asyncHandler(async (req, res) => {
 });
 
 const deleteReports = asyncHandler(async (req, res) => {
+    const userType = req.user.userType;
+    console.log(userType)
     try {
-        const { ids, userType } = req.body; // Expecting an array of IDs and userType from frontend
+        const { ids } = req.body; // Expecting an array of IDs and userType from frontend
 
         if (!ids || !Array.isArray(ids) || ids.length === 0) {
             return res.status(400).json({ message: "Invalid request: No IDs provided" });
@@ -169,7 +171,7 @@ const deleteReports = asyncHandler(async (req, res) => {
             return res.status(403).json({ message: "Unauthorized: Only admin can delete records" });
         }
 
-        const result = await CSVData.deleteMany({ _id: { $in: ids } });
+        const result = await CSVData.deleteMany({ "Report ID": { $in: ids } });
 
         if (result.deletedCount === 0) {
             return res.status(404).json({ message: "No records found to delete" });

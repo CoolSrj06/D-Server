@@ -16,6 +16,6 @@ router.route('/contactForms').post(verifyJWT, handleContactForms);
 router.route('/downloadIndustryWiseReports').get(verifyJWT, downloadIndustryWiseReports);
 router.route('/assignFormsToSales').post(assignFormsToSales);
 router.route('/listSalesPerson').get(listSalesPerson);
-router.route('/delteReports').get(deleteReports);
+router.route('/delteReports').post(deleteReports);
 
 export default router;
