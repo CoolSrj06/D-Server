@@ -29,6 +29,7 @@ import admin from "./routes/admin.routes.js";
 import survey from "./routes/survey.routes.js";
 import featured from "./routes/featured.routes.js";
 import sales from './routes/sales.routes.js';
+import paymentRoute from './routes/payment.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 
@@ -41,6 +42,7 @@ app.use("/admin", admin)
 app.use("/survey", survey)
 app.use("/featured", featured)
 app.use("/sales", sales)
+app.use("/api/", paymentRoute);
 
 // Error handling middleware (must be after all routes)
 app.use(errorHandler);
