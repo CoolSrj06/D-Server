@@ -93,6 +93,11 @@ const buyReportFormSchema = new mongoose.Schema({
         ref: 'User',
         default: null,
     },
+    status: {
+        type: String,
+        enum: ['pending', 'completed', 'failed'],
+        default: 'pending',
+    },
 }, { timestamps: true });
 
 export const buyReportRequest =  mongoose.model('buyReportRequest', buyReportFormSchema);

@@ -34,7 +34,7 @@ const handleContactUsForm = asyncHandler(async (req, res) => {
 
 const handleBuyReportForm = asyncHandler(async (req, res) => {
     try {
-        const { firstName, lastName, email, phone, jobTitle ,companyName, subject, message, address, reportId, formId } = req.body;
+        const { firstName, lastName, email, phone, jobTitle ,companyName, subject, message, address, reportId, formId, status } = req.body;
         if (!firstName || !lastName ||!email ||!phone ||!companyName ||!address ||!reportId ||!formId) {
             return res.status(400).json({ message: "All fields are required" });
         }
@@ -50,7 +50,9 @@ const handleBuyReportForm = asyncHandler(async (req, res) => {
             message : message,
             address : address,
             reportId : reportId,
-            formId : formId
+            formId : formId,
+            status: status || 'pending', // Default to 'pending' if not provided
+            assignedTo: null, // Default to null if not provided
         });
 
         await newBuyReportForm.save();
