@@ -32,8 +32,8 @@ const buyReportFormSchema = new mongoose.Schema({
         required: [true, 'Phone number is required'],
         trim: true,
         index: true,
-        minlength: [10, 'Phone number must be at least 10 characters long'],
-        maxlength: [15, 'Phone number cannot exceed 15 characters'],
+        minlength: [5, 'Phone number must be at least 10 characters long'],
+        maxlength: [16, 'Phone number cannot exceed 15 characters'],
         match: [
             /^\+?[1-9]\d{1,14}$/,
             'Please enter a valid phone number (E.164 format)',

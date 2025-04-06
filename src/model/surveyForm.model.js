@@ -32,7 +32,7 @@ export const surveyForm = new mongoose.Schema({
         required: [true, 'Phone number is required'],
         trim: true,
         index: true,
-        minlength: [10, 'Phone number must be at least 10 characters long'],
+        minlength: [5, 'Phone number must be at least 10 characters long'],
         maxlength: [17, 'Phone number cannot exceed 17 characters'],
         match: [
             /^\+?[1-9]\d{1,14}$/,
